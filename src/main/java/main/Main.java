@@ -14,6 +14,7 @@ public class Main {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
             telegramBotsApi.registerBot(new TelegramService());
+            System.out.println("TelegramService запущен");
         } catch (TelegramApiRequestException e) {
             e.printStackTrace();
         }

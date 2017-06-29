@@ -18,7 +18,7 @@ public class TelegramService extends TelegramLongPollingBot {
             String command = updateMessage.getText();
             switch (command){
                 case "/start":
-                    sendWelcome(updateMessage);
+                    welcome(updateMessage);
                     break;
                 default:
                     senFailCommand(updateMessage);
@@ -38,11 +38,12 @@ public class TelegramService extends TelegramLongPollingBot {
 
     }
 
-    private void sendWelcome(Message updateMessage) {
+    private void welcome(Message updateMessage) {
         String firstName = updateMessage.getChat().getFirstName();
         String lastName = updateMessage.getChat().getLastName();
         String userName = updateMessage.getChat().getUserName();
         long userID = updateMessage.getChat().getId();
+
         System.out.println("Имя: "+firstName);
         System.out.println("Фамилия: "+lastName);
         System.out.println("username: " + userName);

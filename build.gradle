@@ -13,4 +13,5 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'org.telegram', name: 'telegrambots', version: '3.0.2'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.10.Final'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
 }
