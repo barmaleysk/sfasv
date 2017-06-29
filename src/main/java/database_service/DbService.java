@@ -11,7 +11,6 @@ import javax.persistence.Persistence;
  */
 public class DbService {
     EntityManager em;
-
     public DbService() {
         this.em = Persistence.createEntityManagerFactory("MySql").createEntityManager();
     }
@@ -24,10 +23,10 @@ public class DbService {
         transaction.commit();
         return userFormDb;
     }
-    public User getUserFromDb(long id){
+    public User getUserFromDb(long userId){
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
-        User usserFromDb = em.find(User.class,id);
+        User usserFromDb = em.find(User.class,userId);
         return usserFromDb;
     }
 }

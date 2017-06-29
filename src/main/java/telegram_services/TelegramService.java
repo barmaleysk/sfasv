@@ -1,5 +1,7 @@
 package telegram_services;
 
+import database_service.DbService;
+import entitys.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
@@ -10,6 +12,12 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
  * Created by kuteynikov on 29.06.2017.
  */
 public class TelegramService extends TelegramLongPollingBot {
+
+    private DbService dbService;
+
+    public void setDbService(DbService dbService) {
+        this.dbService = dbService;
+    }
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -53,6 +61,14 @@ public class TelegramService extends TelegramLongPollingBot {
                 +"\n Фамилия: "+lastName
                 +"\n username: " + userName
                 +"\n userID: " + userID;
+
+        User user = new User(userID);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUserName(userName);
+
+        dbService.addUserInDb(user);
+
         SendMessage sendMessage = new SendMessage(updateMessage.getChatId(),textMessage);
         try {
             sendMessage(sendMessage);
