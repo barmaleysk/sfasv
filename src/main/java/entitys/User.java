@@ -17,8 +17,7 @@ public class User implements Serializable{
     private String firstName;
     private String LastName;
     private String typeUser = "customer";
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date endDate;
+    private String endDate;
 
     User() {}
 
@@ -26,11 +25,15 @@ public class User implements Serializable{
         this.userID = userID;
     }
 
-    public Date getEndDate() {
+    public long getUserID() {
+        return userID;
+    }
+
+    public String getEndDate() {
         return this.endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
@@ -64,5 +67,15 @@ public class User implements Serializable{
 
     public void setLastName(String lastName) {
         LastName = lastName;
+    }
+
+    @Override
+    public String toString() {
+        return "Имя: "+getFirstName()
+                +"| Фамилия: "+getLastName()
+                +"| UserName: "+getUserName()
+                +"| UserID: "+getUserID()
+                +"| Тип: "+getTypeUser()
+                +"| конец подписки: "+getEndDate();
     }
 }

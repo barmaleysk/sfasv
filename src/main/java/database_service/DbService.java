@@ -27,6 +27,7 @@ public class DbService {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         User usserFromDb = em.find(User.class,userId);
+        transaction.commit();
         return usserFromDb;
     }
 }

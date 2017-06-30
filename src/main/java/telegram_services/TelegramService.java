@@ -8,6 +8,8 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.util.Date;
+
 /**
  * Created by kuteynikov on 29.06.2017.
  */
@@ -51,25 +53,23 @@ public class TelegramService extends TelegramLongPollingBot {
         String lastName = updateMessage.getChat().getLastName();
         String userName = updateMessage.getChat().getUserName();
         long userID = updateMessage.getChat().getId();
+        String textMessage = "Привет, "+firstName;
 
-        System.out.println("Имя: "+firstName);
-        System.out.println("Фамилия: "+lastName);
-        System.out.println("username: " + userName);
-        System.out.println("userID: " + userID);
-        String textMessage = "Привет, "+firstName
-                +"\n Имя: "+firstName
-                +"\n Фамилия: "+lastName
-                +"\n username: " + userName
-                +"\n userID: " + userID;
-
-        User user = new User(userID);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setUserName(userName);
-
-        dbService.addUserInDb(user);
-
+        User user = dbService.getUserFromDb(userID);
+        if (user!=null){
+           textMessage = textMessage + "! ваша подписка истекает: " +user.getEndDate();
+        } else {
+            user = new User(userID);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setUserName(userName);
+            user.setEndDate("29.07.2017");
+            dbService.addUserInDb(user);
+            System.out.println("В БД добавлен новый пользователь:\n"+user);
+            textMessage = textMessage + "\n Вам необходимо оплатить подписку!";
+        }
         SendMessage sendMessage = new SendMessage(updateMessage.getChatId(),textMessage);
+
         try {
             sendMessage(sendMessage);
         } catch (TelegramApiException e) {
