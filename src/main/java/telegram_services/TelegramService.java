@@ -5,30 +5,37 @@ import entitys.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kuteynikov on 29.06.2017.
  */
 public class TelegramService extends TelegramLongPollingBot {
-
+    ReplyKeyboardMarkup mainKeyboard;
     private DbService dbService;
 
-    public void setDbService(DbService dbService) {
+    public TelegramService(DbService dbService) {
         this.dbService = dbService;
+        createMainMenu();
     }
 
     @Override
     public void onUpdateReceived(Update update) {
+        System.out.println(update.getMessage().getText());
         if (update.hasMessage()&&update.getMessage().isCommand()){
             Message updateMessage = update.getMessage();
             String command = updateMessage.getText();
             switch (command){
                 case "/start":
-                    welcome(updateMessage);
+                    start(updateMessage);
                     break;
                 default:
                     senFailCommand(updateMessage);
@@ -48,15 +55,18 @@ public class TelegramService extends TelegramLongPollingBot {
 
     }
 
-    private void welcome(Message updateMessage) {
+    private void start(Message updateMessage) {
         String firstName = updateMessage.getChat().getFirstName();
         String lastName = updateMessage.getChat().getLastName();
         String userName = updateMessage.getChat().getUserName();
         long userID = updateMessage.getChat().getId();
+        long chatID = updateMessage.getChatId();
         String textMessage = "Привет, "+firstName;
 
         User user = dbService.getUserFromDb(userID);
         if (user!=null){
+           user.setChatID(chatID);
+           dbService.addUserInDb(user);
            textMessage = textMessage + "! ваша подписка истекает: " +user.getEndDate();
         } else {
             user = new User(userID);
@@ -69,12 +79,22 @@ public class TelegramService extends TelegramLongPollingBot {
             textMessage = textMessage + "\n Вам необходимо оплатить подписку!";
         }
         SendMessage sendMessage = new SendMessage(updateMessage.getChatId(),textMessage);
-
+        sendMessage.setReplyMarkup(mainKeyboard);
         try {
             sendMessage(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+
+    public void createMainMenu(){
+        mainKeyboard = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add(new KeyboardButton("button01"));
+        keyboardRow.add(new KeyboardButton("button02"));
+        keyboardRows.add(keyboardRow);
+        mainKeyboard.setKeyboard(keyboardRows);
     }
 
     @Override

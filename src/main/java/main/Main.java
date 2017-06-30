@@ -15,8 +15,7 @@ public class Main {
         System.out.println("DbService запущен");
         ApiContextInitializer.init();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
-        TelegramService telegramService = new TelegramService();
-        telegramService.setDbService(dbService);
+        TelegramService telegramService = new TelegramService(dbService);
         try {
             telegramBotsApi.registerBot(telegramService);
             System.out.println("TelegramService запущен");

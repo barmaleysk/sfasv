@@ -18,11 +18,20 @@ public class User implements Serializable{
     private String LastName;
     private String typeUser = "customer";
     private String endDate;
+    private long chatID;
 
     User() {}
 
     public User(long userID) {
         this.userID = userID;
+    }
+
+    public long getChatID() {
+        return chatID;
+    }
+
+    public void setChatID(long chatID) {
+        this.chatID = chatID;
     }
 
     public long getUserID() {
