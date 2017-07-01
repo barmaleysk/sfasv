@@ -3,6 +3,7 @@ package entitys;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -17,10 +18,18 @@ public class User implements Serializable{
     private String firstName;
     private String LastName;
     private String typeUser = "customer";
-    private String endDate;
+    private LocalDate endDate;
     private long chatID;
 
     User() {}
+
+    public User(long userID, String userName, String firstName, String lastName,long chatID) {
+        this.userID = userID;
+        this.userName = userName;
+        this.firstName = firstName;
+        this.LastName = lastName;
+        this.chatID = chatID;
+    }
 
     public User(long userID) {
         this.userID = userID;
@@ -38,11 +47,11 @@ public class User implements Serializable{
         return userID;
     }
 
-    public String getEndDate() {
+    public LocalDate getEndDate() {
         return this.endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
