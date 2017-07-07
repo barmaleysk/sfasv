@@ -25,6 +25,7 @@ public class TelegramService extends TelegramLongPollingBot {
     ReplyKeyboardMarkup mainKeyboardMarkup;
     ReplyKeyboardMarkup subscripMenuMarkup;
     ReplyKeyboardMarkup infoMenuMarkup;
+    ReplyKeyboardMarkup settingsMenuMarkup;
 
     private DbService dbService;
 
@@ -33,8 +34,8 @@ public class TelegramService extends TelegramLongPollingBot {
         createMainKeyboardMarkup();
         createSubscripMenuMarkup();
         createInfoMenuMarkup();
+        createSettingsMenuMarkup();
     }
-
 
 
 
@@ -131,6 +132,10 @@ public class TelegramService extends TelegramLongPollingBot {
                     } else
                         message.setText("У вас нет подписки!");
                     break;
+                case SETTINGS:
+                    message.setText(BotMessages.SETTINGS_MENU.getText());
+                    message.setReplyMarkup(settingsMenuMarkup);
+                    break;
                 default:
                     message.setText(BotMessages.DEFAULT.getText());
             }
@@ -188,8 +193,11 @@ public class TelegramService extends TelegramLongPollingBot {
         keyboardRow1.add(new KeyboardButton(CommandButtons.OFORMIT_PODPISCU.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(CommandButtons.INFO_BOT.getText()));
+        KeyboardRow keyboardRow3 = new KeyboardRow();
+        keyboardRow3.add(new KeyboardButton(CommandButtons.SETTINGS.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
+        keyboardRows.add(keyboardRow3);
         mainKeyboardMarkup.setKeyboard(keyboardRows);
        // mainKeyboardMarkup.setOneTimeKeyboard(true);
         mainKeyboardMarkup.setResizeKeyboard(true);
@@ -233,6 +241,21 @@ public class TelegramService extends TelegramLongPollingBot {
         infoMenuMarkup.setResizeKeyboard(true);
     }
 
+    private void createSettingsMenuMarkup() {
+        settingsMenuMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton(CommandButtons.REQUISITES.getText()));
+        keyboardRow1.add(new KeyboardButton(CommandButtons.PARTNER_PROGRAM.getText()));
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        keyboardRow2.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.ADD_REFERAL.getText()));
+        keyboardRows.add(keyboardRow1);
+        keyboardRows.add(keyboardRow2);
+        settingsMenuMarkup.setKeyboard(keyboardRows);
+        settingsMenuMarkup.setResizeKeyboard(true);
+    }
+
     private InlineKeyboardMarkup createTrialInlineButton(){
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
@@ -263,70 +286,4 @@ public class TelegramService extends TelegramLongPollingBot {
     public void onClosing() {
 
     }
-
-       /* private void sendPayMenu(Message message) {
-        SendMessage sendMessage = new SendMessage() // Create a message object object
-                .setChatId(message.getChatId())
-                .setText("Выберите подписку:");
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-        rowInline1.add(new InlineKeyboardButton().setText("1 месяц").setCallbackData("1month"));
-        List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
-        rowInline2.add(new InlineKeyboardButton().setText("2 месяца").setCallbackData("2month"));
-        // Set the keyboard to the markup
-        rowsInline.add(rowInline1);
-        rowsInline.add(rowInline2);
-        // Add it to the message
-        markupInline.setKeyboard(rowsInline);
-        sendMessage.setReplyMarkup(markupInline);
-        try {
-            sendMessage(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void senFailCommand(Message updateMessage) {
-        SendMessage sendMessage = new SendMessage(updateMessage.getChatId(),"неизвестная команда");
-        try {
-            sendMessage(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-
-    } */
-
-  /*  private void start(Message updateMessage) {
-        String firstName = updateMessage.getChat().getFirstName();
-        String lastName = updateMessage.getChat().getLastName();
-        String userName = updateMessage.getChat().getUserName();
-        long userID = updateMessage.getChat().getId();
-        long chatID = updateMessage.getChatId();
-        String textMessage = "Привет, "+firstName;
-
-        User user = dbService.getUserFromDb(userID);
-        if (user!=null){
-           user.setChatID(chatID);
-           dbService.addUserInDb(user);
-           textMessage = textMessage + "! ваша подписка истекает: " +user.getEndDate();
-        } else {
-            user = new User(userID);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setUserName(userName);
-            user.setEndDate("29.07.2017");
-            dbService.addUserInDb(user);
-            System.out.println("В БД добавлен новый пользователь:\n"+user);
-            textMessage = textMessage + "\n Вам необходимо оплатить подписку!";
-        }
-        SendMessage sendMessage = new SendMessage(updateMessage.getChatId(),textMessage);
-
-        sendMessage.setReplyMarkup(mainKeyboardMarkup);
-        try {
-            sendMessage(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    } */
 }

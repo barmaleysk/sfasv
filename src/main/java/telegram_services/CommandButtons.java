@@ -8,6 +8,7 @@ public enum CommandButtons {
     //main menu
     OFORMIT_PODPISCU("Оформить подписку"),
     INFO_BOT("Информация"),
+    SETTINGS("Настройки"),
     //subscripe menu
     ONE_MONTH("30 дней = 100р"),
     TWO_MONTH("60 дней = 180р"),
@@ -19,7 +20,10 @@ public enum CommandButtons {
     FAQ("FAQ"),
     HOW_TO_CHANGE_CURRENCY("Как обменять криптовалюту"),
     SUPPORT("Тех поддержка"),
-
+    //settings menu
+    REQUISITES("Добавить платежные реквезиты"),
+    PARTNER_PROGRAM("Партнёрская программа"),
+    ADD_REFERAL("Прикрутить рефера"),
     //FAIL
     FAIL("Я пока не знаю что на это ответить")
     ;

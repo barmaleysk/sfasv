@@ -55,7 +55,8 @@ public enum  BotMessages {
     ONE_MONTH("Здесь будет сообщение с кнопкой оплаты"),
     TWO_MONTH("Здесь будет сообщение с кнопкой оплаты"),
     THREE_MONTH("Здесь будет сообщение с кнопкой оплаты"),
-    DEFAULT("Я пока не знаю что на это ответить");
+    DEFAULT("Я пока не знаю что на это ответить"),
+    SETTINGS_MENU("Меню настроек");
     private String textMessage;
 
     BotMessages(String textMessage) {
