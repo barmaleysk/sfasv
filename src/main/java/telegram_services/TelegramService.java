@@ -3,17 +3,13 @@ package telegram_services;
 import database_service.DbService;
 import entitys.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,98 +37,64 @@ public class TelegramService extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         System.out.println(update.getMessage().getText());
-        //проверим пользователя: 1-впервые зашёл, 2-кончилась подписка, 3-есть подписка
+        //проверим пользователя в базе и выберем контекст
         long userID = update.getMessage().getChat().getId();
         User userFromDb = dbService.getUserFromDb(userID);
         if (userFromDb==null){
             startContext(update);
         } else {
-            withSubscriptionContext(update);
-        }
-        /*else if (userFromDb.getEndDate()==null && userFromDb.getEndDate().isAfter(LocalDate.now())){
             mainContext(update);
-        }else if (userFromDb.getEndDate()!=null && userFromDb.getEndDate().isBefore(LocalDate.now())){
-            withSubscriptionContext(update);
-        } */
-
-
-       /* if (update.hasMessage()&&update.getMessage().isCommand()){
-            Message updateMessage = update.getMessage();
-            String command = updateMessage.getText();
-            switch (command){
-                case "/start":
-                    start(updateMessage);
-                    break;
-                default:
-                    senFailCommand(updateMessage);
-                    break;
-            }
-        } else if (update.hasMessage()&&update.getMessage().hasText()){
-            String s = update.getMessage().getText();
-            switch (s){
-                case "Оформить подписку" :
-                    sendPayMenu(update.getMessage());
-                    break;
-                default:
-                    senFailCommand(update.getMessage());
-            }
-        } */
-
+        }
     }
-
-
 
     private void mainContext(Update update) {
-
-    }
-
-    private void withSubscriptionContext(Update update) {
         if (update.hasMessage()&&update.getMessage().hasText()){
             String texOfMessage = update.getMessage().getText();
             SendMessage message = new SendMessage().setChatId(update.getMessage().getChatId());
-            switch (texOfMessage){
-                case "/start":
-                    message.setText("v");
+            CommandButtons button = CommandButtons.getTYPE(texOfMessage);
+            switch (button){
+                case START:
+                    message.setText(BotMessages.MAIN_MENU.getText());
                     message.setReplyMarkup(mainKeyboardMarkup);
                     break;
-                case "Оформить подписку" :
-                    message.setText("v");
+                case OFORMIT_PODPISCU:
+                    message.setText(BotMessages.SELECT_SUBSCRIPTION.getText());
                     message.setReplyMarkup(subscripMenuMarkup);
                     break;
-                case "Информация о боте" :
-                    message.setText("v");
+                case INFO_BOT:
+                    message.setText(BotMessages.SHORT_DESCRIPTION.getText());
                     message.setReplyMarkup(infoMenuMarkup);
                     break;
-                case "Общее описание" :
-                    message.setText("Здесь будет общее описание, что это, как это, ссылки на ютуб....");
+                case GENERAL_DESCRIPTION:
+                    message.setText(BotMessages.GENERAL_DESCRIPTION.getText());
                     break;
-                case "FAQ":
-                    message.setText("Здесь будет общее описание");
+                case FAQ:
+                    message.setText(BotMessages.FAQ.getText());
                     break;
-                case "Как обменять криптовалюту":
-                    message.setText("фигась фигась и поменяли");
+                case HOW_TO_CHANGE_CURRENCY:
+                    message.setText(BotMessages.HOW_TO_CHANGE_CURRENCY.getText());
                     break;
-                case "Тех поддержк":
-                    message.setText("Меню для связи с тех поддержкой");
+                case SUPPORT:
+                    message.setText(BotMessages.SUPPORT.getText());
                     break;
-                case "Вернутся в главное меню":
-                    message.setText("v");
+                case BACK_IN_MAIN_MENU:
+                    message.setText(BotMessages.MAIN_MENU.getText());
                     message.setReplyMarkup(mainKeyboardMarkup);
                     break;
-                case "1 месяц = 100р":
-                    message.setText("Сообщение с кнопкой оплаты");
+                case ONE_MONTH:
+                    message.setText(BotMessages.ONE_MONTH.getText());
                     break;
-                case "2 месяца = 180р":
-                    message.setText("Сообщение с кнопкой оплаты");
+                case TWO_MONTH:
+                    message.setText(BotMessages.TWO_MONTH.getText());
                     break;
-                case "3 месяца = 240р":
-                    message.setText("Сообщение с кнопкой оплаты");
+                case THREE_MONTH:
+                    message.setText(BotMessages.THREE_MONTH.getText());
                     break;
-                case "Проверить подписку":
-                    message.setText("Ваша подписка истекает...");
+                case CHECK_SUBSCRIPTION:
+                    message.setText(BotMessages.CHECK_SUBSCRIPTION.getText());
                     break;
                 default:
-                    message.setText("Я пока не знаю что на это отвеить");
+                    message.setText(BotMessages.DEFAULT.getText());
             }
             try {
                 sendMessage(message);
@@ -172,9 +134,9 @@ public class TelegramService extends TelegramLongPollingBot {
         mainKeyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton("Оформить подписку"));
+        keyboardRow1.add(new KeyboardButton(CommandButtons.OFORMIT_PODPISCU.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
-        keyboardRow2.add(new KeyboardButton("Информация о боте"));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.INFO_BOT.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         mainKeyboardMarkup.setKeyboard(keyboardRows);
@@ -186,13 +148,13 @@ public class TelegramService extends TelegramLongPollingBot {
         subscripMenuMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton("1 месяц = 100р"));
-        keyboardRow1.add(new KeyboardButton("2 месяца = 180р"));
+        keyboardRow1.add(new KeyboardButton(CommandButtons.ONE_MONTH.getText()));
+        keyboardRow1.add(new KeyboardButton(CommandButtons.TWO_MONTH.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
-        keyboardRow2.add(new KeyboardButton("3 месяца = 240р"));
-        keyboardRow2.add(new KeyboardButton("Проверить подписку"));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.THREE_MONTH.getText()));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.CHECK_SUBSCRIPTION.getText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
-        keyboardRow3.add(new KeyboardButton("Вернутся в главное меню"));
+        keyboardRow3.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
@@ -205,13 +167,13 @@ public class TelegramService extends TelegramLongPollingBot {
         infoMenuMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton("Общее описание"));
-        keyboardRow1.add(new KeyboardButton("FAQ"));
+        keyboardRow1.add(new KeyboardButton(CommandButtons.GENERAL_DESCRIPTION.getText()));
+        keyboardRow1.add(new KeyboardButton(CommandButtons.FAQ.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
-        keyboardRow2.add(new KeyboardButton("Как обменять криптовалюту"));
-        keyboardRow2.add(new KeyboardButton("Тех поддержка"));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.HOW_TO_CHANGE_CURRENCY.getText()));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.SUPPORT.getText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
-        keyboardRow3.add(new KeyboardButton("Вернутся в главное меню"));
+        keyboardRow3.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
