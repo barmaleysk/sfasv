@@ -7,7 +7,7 @@ public enum CommandButtons {
     START("/start"),
     //main menu
     OFORMIT_PODPISCU("Оформить подписку"),
-    INFO_BOT("Информация о боте"),
+    INFO_BOT("Информация"),
     //subscripe menu
     ONE_MONTH("30 дней = 100р"),
     TWO_MONTH("60 дней = 180р"),
