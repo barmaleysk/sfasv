@@ -5,6 +5,7 @@ import entitys.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -42,15 +43,14 @@ public class TelegramService extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        //System.out.println(update.getMessage().getText());
-        //проверим пользователя в базе и выберем контекст
+        //выберем контекст
         if (update.hasMessage()&&update.getMessage().hasText()) {
             long userID = update.getMessage().getChat().getId();
             User userFromDb = dbService.getUserFromDb(userID);
-            if (userFromDb == null) {
-                startContext(update);
-            } else if (update.hasMessage() && update.getMessage().hasText()) {
-                mainContext(update);
+            if (userFromDb != null) {
+                mainContext(update.getMessage());
+            } else {
+                startContext(update.getMessage());
             }
         }else if (update.hasCallbackQuery()) {
             callBackContext(update.getCallbackQuery());
@@ -62,7 +62,7 @@ public class TelegramService extends TelegramLongPollingBot {
         switch (dataFromQuery){
             case "settrial":
                 User userFromDb = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
-                userFromDb.setEndDate(LocalDate.now().plusDays(2));
+                userFromDb.setEndDate(LocalDate.now().plusDays(3));
                 dbService.addUserInDb(userFromDb);
                 System.out.println("Изменён пользователь: "+userFromDb);
                 EditMessageText new_message = new EditMessageText()
@@ -79,10 +79,9 @@ public class TelegramService extends TelegramLongPollingBot {
         }
     }
 
-    private void mainContext(Update update) {
-        if (update.hasMessage()&&update.getMessage().hasText()){
-            String texOfMessage = update.getMessage().getText();
-            SendMessage message = new SendMessage().setChatId(update.getMessage().getChatId());
+    private void mainContext(Message incomingMessage) {
+            String texOfMessage = incomingMessage.getText();
+            SendMessage message = new SendMessage().setChatId(incomingMessage.getChatId());
             CommandButtons button = CommandButtons.getTYPE(texOfMessage);
             switch (button){
                 case START:
@@ -123,14 +122,16 @@ public class TelegramService extends TelegramLongPollingBot {
                     message.setText(BotMessages.THREE_MONTH.getText());
                     break;
                 case CHECK_SUBSCRIPTION:
-                    LocalDate endDate = checkSubscription(update);
+                    LocalDate endDate = checkSubscription(incomingMessage);
                     if (endDate!=null) {
                         if (endDate.isAfter(LocalDate.now())) {
                             message.setText(BotMessages.CHECK_SUBSCRIPTION.getText() + endDate);
-                        }else
-                            message.setText("Ваша подписка истекла: "+endDate);
-                    } else
+                        }else {
+                            message.setText("Ваша подписка истекла: " + endDate);
+                        }
+                    } else {
                         message.setText("У вас нет подписки!");
+                    }
                     break;
                 case SETTINGS:
                     message.setText(BotMessages.SETTINGS_MENU.getText());
@@ -144,40 +145,39 @@ public class TelegramService extends TelegramLongPollingBot {
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
-        }
     }
 
-    private LocalDate checkSubscription(Update update) {
-        User user = dbService.getUserFromDb(update.getMessage().getChat().getId());
+    private LocalDate checkSubscription(Message incomingMessage) {
+        User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
+        System.out.println("дата из базы: "+user.getEndDate());
         return user.getEndDate();
     }
 
-    private void startContext(Update update) {
-        long userID = update.getMessage().getChat().getId();
-        String userName = update.getMessage().getChat().getUserName();
-        String firstName = update.getMessage().getChat().getFirstName();
-        String lastName = update.getMessage().getChat().getLastName();
-        long chatID = update.getMessage().getChatId();
+    private void startContext(Message message) {
+        long userID = message.getChat().getId();
+        String userName = message.getChat().getUserName();
+        String firstName = message.getChat().getFirstName();
+        String lastName = message.getChat().getLastName();
+        long chatID = message.getChatId();
         User newUser = new User(userID,userName,firstName,lastName,chatID);
-        SendMessage message = new SendMessage().setChatId(chatID);
-        if (update.hasMessage()&&update.getMessage().getText().equals("/start")){
+        SendMessage newMessage = new SendMessage().setChatId(chatID);
+        if (message.getText().equals("/start")){
             dbService.addUserInDb(newUser);
             System.out.println("в базу добавлен пользователь: "+newUser);
-            message.setText("Добро пожаловать, "+firstName+"!"
-                    +"\n");
-            message.setReplyMarkup(mainKeyboardMarkup);
+            newMessage.setText("Добро пожаловать, "+firstName+"!"+"\n");
+            newMessage.setReplyMarkup(mainKeyboardMarkup);
             try {
-                sendMessage(message);
-                message.setText("Ты здесь впервые! Можешь воспользоваться пробным периодом.");
-                message.setReplyMarkup(createTrialInlineButton());
-                sendMessage(message);
+                sendMessage(newMessage);
+                newMessage.setText("Ты здесь впервые и можешь воспользоваться пробным периодом!");
+                newMessage.setReplyMarkup(createTrialInlineButton());
+                sendMessage(newMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         } else {
-            message.setText("Тебя еще нет в базе, отправь  /start");
+            newMessage.setText("Тебя еще нет в базе, отправь  /start");
             try {
-                sendMessage(message);
+                sendMessage(newMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -269,8 +269,6 @@ public class TelegramService extends TelegramLongPollingBot {
         markupInline.setKeyboard(rowsInline);
         return markupInline;
     }
-
-
 
     @Override
     public String getBotUsername() {

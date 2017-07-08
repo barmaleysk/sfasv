@@ -16,12 +16,12 @@ public class DbService {
     }
 
 
-    public User addUserInDb(User user){
+    public void addUserInDb(User user){
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
-        User userFormDb = em.merge(user);
+        em.persist(user);
         transaction.commit();
-        return userFormDb;
+        //return userFormDb;
     }
     public User getUserFromDb(long userId){
         EntityTransaction transaction = em.getTransaction();
