@@ -62,11 +62,8 @@ public class TelegramService extends TelegramLongPollingBot {
         switch (dataFromQuery){
             case "settrial":
                 User userFromDb = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
-                System.out.println("текущая дата"+LocalDate.now());
                 userFromDb.setEndDate(LocalDate.now().plusDays(2));
-                System.out.println("дата до сохранения"+userFromDb.getEndDate());
                 dbService.addUserInDb(userFromDb);
-                System.out.println("Дата из базы"+dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId()).getEndDate());
                 System.out.println("Изменён пользователь: "+userFromDb);
                 EditMessageText new_message = new EditMessageText()
                         .setChatId(callbackQuery.getMessage().getChatId())
@@ -78,8 +75,6 @@ public class TelegramService extends TelegramLongPollingBot {
                     e.printStackTrace();
                 }
                 break;
-
-
         }
     }
 
