@@ -63,7 +63,7 @@ public class TelegramService extends TelegramLongPollingBot {
             case "settrial":
                 User userFromDb = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
                 userFromDb.setEndDate(LocalDate.now().plusDays(2));
-                dbService.addUserInDb(userFromDb);
+                dbService.addRootUser(userFromDb);
                 System.out.println("Изменён пользователь: "+userFromDb);
                 EditMessageText new_message = new EditMessageText()
                         .setChatId(callbackQuery.getMessage().getChatId())
@@ -148,7 +148,6 @@ public class TelegramService extends TelegramLongPollingBot {
 
     private LocalDate checkSubscription(Message incomingMessage) {
         User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
-        System.out.println("дата из базы: "+user.getEndDate());
         return user.getEndDate();
     }
 
@@ -161,7 +160,7 @@ public class TelegramService extends TelegramLongPollingBot {
         User newUser = new User(userID,userName,firstName,lastName,chatID);
         SendMessage newMessage = new SendMessage().setChatId(chatID);
         if (message.getText().equals("/start")){
-            dbService.addUserInDb(newUser);
+            dbService.addRootUser(newUser);
             System.out.println("в базу добавлен пользователь: "+newUser);
             newMessage.setText("Добро пожаловать, "+firstName+"!"+"\n");
             newMessage.setReplyMarkup(mainKeyboardMarkup);
@@ -173,7 +172,12 @@ public class TelegramService extends TelegramLongPollingBot {
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
-        } else {
+        }else if (message.getText().startsWith("/start=")) {
+              String stringID = message.getText().substring(7);
+              Long parentuserID = Long.parseLong(stringID);
+              dbService.addChildrenUser(parentuserID,newUser);
+              System.out.println("в базу добавлен пользователь: "+newUser);
+        }else {
             newMessage.setText("Тебя еще нет в базе, отправь  /start");
             try {
                 sendMessage(newMessage);

@@ -4,13 +4,22 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 
 /**
  * Created by kuteynikov on 29.06.2017.
  */
 @Entity
 @Table(name = "users")
+@NamedQueries({
+        @NamedQuery(name = "User.calculateKeyStep1",
+                query = "UPDATE User u SET u.leftKey=u.leftKey+2, u.rightKey=u.rightKey+2 WHERE u.leftKey>:key"),
+        @NamedQuery(name = "User.calculateKeyStep2",
+                query = "UPDATE User u SET u.rightKey=u.rightKey+2 WHERE u.rightKey>=:key AND u.leftKey<:key"),
+        @NamedQuery(name = "User.getChildren",
+                query = "SELECT u FROM User u WHERE u.leftKey>=:key AND u.rightKey<=:key"),
+        @NamedQuery(name = "User.getMaxRightKey",
+                query = "SELECT MAX(u.rightKey) FROM User u")
+})
 public class User implements Serializable{
     @Id @NotNull
     private  long userID;
@@ -20,6 +29,9 @@ public class User implements Serializable{
     private String typeUser = "customer";
     private LocalDate endDate;
     private long chatID;
+    private int level;
+    private int rightKey;
+    private int leftKey;
 
     User() {}
 
@@ -85,6 +97,30 @@ public class User implements Serializable{
 
     public void setLastName(String lastName) {
         LastName = lastName;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public int getRightKey() {
+        return rightKey;
+    }
+
+    public void setRightKey(int rightKey) {
+        this.rightKey = rightKey;
+    }
+
+    public int getLeftKey() {
+        return leftKey;
+    }
+
+    public void setLeftKey(int leftKey) {
+        this.leftKey = leftKey;
     }
 
     @Override
