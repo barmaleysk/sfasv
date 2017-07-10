@@ -21,7 +21,6 @@ public class DbService {
         transaction.begin();
         em.persist(user);
         transaction.commit();
-        //return userFormDb;
     }
     public User getUserFromDb(long userId){
         EntityTransaction transaction = em.getTransaction();
