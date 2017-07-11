@@ -14,7 +14,7 @@ public enum CommandButtons {
     TWO_MONTH("60 дней = 180р"),
     THREE_MONTH("90 дней = 240р"),
     CHECK_SUBSCRIPTION("Проверить подписку"),
-    BACK_IN_MAIN_MENU("<- Вернутся в главное меню"),
+    BACK_IN_MAIN_MENU("<- Главное меню"),
     //info menu
     GENERAL_DESCRIPTION("Общее описание"),
     FAQ("FAQ"),
@@ -25,7 +25,9 @@ public enum CommandButtons {
     PARTNER_PROGRAM("Партнёрская программа"),
     ADD_REFERAL("Прикрутить рефера"),
     //partners menu
+    INVITE_PARTNER("Пригласить"),
     CHECK_REFERALS("Посмотреть рефералов"),
+    BACK_IN_SETTINGS("<- настройки"),
     //trial buttom
     SET_TRIAL("Активировать на 2 дня"),
     //FAIL

@@ -3,6 +3,8 @@ package database_service;
 import entitys.User;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by kuteynikov on 29.06.2017.
@@ -74,7 +76,14 @@ public class DbService {
         transaction.commit();
     }
 
-    public void getChildrenUsers(long userID){
+    public List<User> getChildrenUsers(int parentLevel,int parenLeftKey, int parentRightKey ){
+        List<User> usersList = new ArrayList<>();
+        TypedQuery<User> query = em.createNamedQuery("User.getAllChildren",User.class);
+        query.setParameter("rk",parentRightKey);
+        query.setParameter("lk",parenLeftKey);
+        query.setParameter("l",parentLevel);
+        usersList=query.getResultList();
 
+        return usersList;
     }
 }

@@ -28,6 +28,7 @@ public class TelegramService extends TelegramLongPollingBot {
     ReplyKeyboardMarkup subscripMenuMarkup;
     ReplyKeyboardMarkup infoMenuMarkup;
     ReplyKeyboardMarkup settingsMenuMarkup;
+    ReplyKeyboardMarkup partnerMenuMarkup;
 
     private DbService dbService;
 
@@ -37,6 +38,7 @@ public class TelegramService extends TelegramLongPollingBot {
         createSubscripMenuMarkup();
         createInfoMenuMarkup();
         createSettingsMenuMarkup();
+        this.partnerMenuMarkup =createPartnersMenu();
     }
 
     @Override
@@ -68,11 +70,6 @@ public class TelegramService extends TelegramLongPollingBot {
                 dbService.updateUser(userFromDb);
                 System.out.println("Изменён пользователь: " + userFromDb);
                 new_message.setText("2 дня активированы!");
-                break;
-            case CHECK_REFERALS:
-                new_message.setText("1 уроыня:"
-                        + "\n2 уровня:"
-                        + "\n3 уровня:");
                 break;
             default:
                 new_message.setText("Что то пошло не так обратитесь в тех. поддрежку");
@@ -145,21 +142,54 @@ public class TelegramService extends TelegramLongPollingBot {
                     message.setReplyMarkup(settingsMenuMarkup);
                     break;
                 case PARTNER_PROGRAM:
+                    message.setText(CommandButtons.PARTNER_PROGRAM.getText());
+                    message.setReplyMarkup(partnerMenuMarkup);
+                    break;
+                case INVITE_PARTNER:
                     message.setText("Чтобы пригласить участника, скопируйте и отправьте ему эту ссылку "
                             +"\n https://t.me/Sl0wP0ke_Bot?start="+incomingMessage.getChat().getId()
                             +"\n");
-                    //mySendMessage(message);
-                    message.setReplyMarkup(createPartnersMenu());
+                    break;
+                case CHECK_REFERALS:
+                    User parentUser = dbService.getUserFromDb(incomingMessage.getChat().getId());
+                    System.out.println(parentUser);
+                    int parentLevel=parentUser.getLevel();
+                    int parentLeftKey=parentUser.getLeftKey();
+                    int parentRightKey = parentUser.getRightKey();
+                    String text;
+                    if (parentLeftKey+1==parentRightKey){
+                        text = "У вас нет рефералов";
+                    } else {
+                        List<User> userList = dbService.getChildrenUsers(parentLevel,parentLeftKey,parentRightKey);
+                        String level1="";
+                        String level2="";
+                        String level3="";
+                        for (User u : userList) {
+                            if (parentLevel==u.getLevel()+1){
+                                level1=level1+" "+u.getUserName()+"-"+u.getFirstName();
+                            }else if (parentLevel==u.getLevel()+2){
+                                level2=level2+" "+u.getUserName()+"-"+u.getFirstName();
+                            }else {
+                                level3=level3+" "+u.getUserName()+"-"+u.getFirstName();
+                            }
+                        }
+                        text = "Рефералы 1го уровня: "
+                                +"\n "+level1
+                                +"\nРефералы 2го уровня: "
+                                +"\n"+level2
+                                +"\nРефералы 3го уровня: "
+                                +"\n"+level3;
+                    }
+                    message.setText(text);
+                    break;
+                case BACK_IN_SETTINGS:
+                    message.setText(BotMessages.SETTINGS_MENU.getText());
+                    message.setReplyMarkup(settingsMenuMarkup);
                     break;
                 default:
                     message.setText(BotMessages.DEFAULT.getText());
             }
             mySendMessage(message);
-    }
-
-    private LocalDate checkSubscription(Message incomingMessage) {
-        User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
-        return user.getEndDate();
     }
 
     private void startContext(Message message) {
@@ -171,10 +201,8 @@ public class TelegramService extends TelegramLongPollingBot {
         User newUser = new User(userID,userName,firstName,lastName,chatID);
         SendMessage newMessage = new SendMessage().setChatId(chatID);
         if (message.getText().equals("/start")){
-
             dbService.addRootUser(newUser);
             System.out.println("в базу добавлен пользователь: "+newUser);
-
             newMessage.setText("Добро пожаловать, "+firstName+"!"+"\n");
             newMessage.setReplyMarkup(mainKeyboardMarkup);
             mySendMessage(newMessage);
@@ -297,14 +325,24 @@ public class TelegramService extends TelegramLongPollingBot {
         return markupInline;
     }
 
-    private InlineKeyboardMarkup createPartnersMenu(){
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-        rowInline1.add(new InlineKeyboardButton().setText(CommandButtons.CHECK_REFERALS.getText()).setCallbackData(CommandButtons.CHECK_REFERALS.getText()));
-        rowsInline.add(rowInline1);
-        markupInline.setKeyboard(rowsInline);
-        return markupInline;
+    private ReplyKeyboardMarkup createPartnersMenu(){
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton(CommandButtons.INVITE_PARTNER.getText()));
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        keyboardRow2.add(new KeyboardButton(CommandButtons.BACK_IN_SETTINGS.getText()));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.CHECK_REFERALS.getText()));
+        keyboardRows.add(keyboardRow1);
+        keyboardRows.add(keyboardRow2);
+        keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setResizeKeyboard(true);
+        return keyboardMarkup;
+    }
+
+    private LocalDate checkSubscription(Message incomingMessage) {
+        User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
+        return user.getEndDate();
     }
 
     @Override
