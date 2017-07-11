@@ -13,6 +13,12 @@ public class DbService {
         this.em = Persistence.createEntityManagerFactory("MySql").createEntityManager();
     }
 
+    public void updateUser(User user){
+        EntityTransaction transaction = em.getTransaction();
+        transaction.begin();
+        em.persist(user);
+        transaction.commit();
+    }
 
     public void addRootUser(User user){
         TypedQuery<Integer> typedQuery = em.createNamedQuery("User.getMaxRightKey",Integer.class);
@@ -31,6 +37,7 @@ public class DbService {
         em.persist(user);
         transaction.commit();
     }
+
     public User getUserFromDb(long userId){
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
@@ -39,8 +46,11 @@ public class DbService {
         return usserFromDb;
     }
 
-    public void addChildrenUser(long parentUserId,User childrenUser){
+    public void addChildrenUser (long parentUserId,User childrenUser) throws NoUserInDb {
         User parentUser = getUserFromDb(parentUserId);
+        if (parentUser==null){
+            throw new NoUserInDb();
+        }
         int rightKey = parentUser.getRightKey();
         childrenUser.setLevel(parentUser.getLevel()+1);
         childrenUser.setLeftKey(rightKey);
@@ -62,5 +72,9 @@ public class DbService {
         transaction.begin();
         em.persist(childrenUser);
         transaction.commit();
+    }
+
+    public void getChildrenUsers(long userID){
+
     }
 }

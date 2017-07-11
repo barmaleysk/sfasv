@@ -8,7 +8,7 @@ public enum CommandButtons {
     //main menu
     OFORMIT_PODPISCU("Оформить подписку"),
     INFO_BOT("Информация"),
-    SETTINGS("Настройки"),
+    SETTINGS("Параметры"),
     //subscripe menu
     ONE_MONTH("30 дней = 100р"),
     TWO_MONTH("60 дней = 180р"),
@@ -24,6 +24,10 @@ public enum CommandButtons {
     REQUISITES("Добавить платежные реквезиты"),
     PARTNER_PROGRAM("Партнёрская программа"),
     ADD_REFERAL("Прикрутить рефера"),
+    //partners menu
+    CHECK_REFERALS("Посмотреть рефералов"),
+    //trial buttom
+    SET_TRIAL("Активировать на 2 дня"),
     //FAIL
     FAIL("Я пока не знаю что на это ответить")
     ;

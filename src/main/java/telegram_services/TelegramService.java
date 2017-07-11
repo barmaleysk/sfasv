@@ -1,6 +1,7 @@
 package telegram_services;
 
 import database_service.DbService;
+import database_service.NoUserInDb;
 import entitys.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
@@ -38,9 +39,6 @@ public class TelegramService extends TelegramLongPollingBot {
         createSettingsMenuMarkup();
     }
 
-
-
-
     @Override
     public void onUpdateReceived(Update update) {
         //выберем контекст
@@ -59,23 +57,33 @@ public class TelegramService extends TelegramLongPollingBot {
 
     private void callBackContext(CallbackQuery callbackQuery) {
         String dataFromQuery = callbackQuery.getData();
-        switch (dataFromQuery){
-            case "settrial":
+        CommandButtons button = CommandButtons.getTYPE(dataFromQuery);
+        EditMessageText new_message = new EditMessageText()
+                .setChatId(callbackQuery.getMessage().getChatId())
+                .setMessageId(callbackQuery.getMessage().getMessageId());
+        switch (button) {
+            case SET_TRIAL:
                 User userFromDb = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
                 userFromDb.setEndDate(LocalDate.now().plusDays(2));
-                dbService.addRootUser(userFromDb);
-                System.out.println("Изменён пользователь: "+userFromDb);
-                EditMessageText new_message = new EditMessageText()
-                        .setChatId(callbackQuery.getMessage().getChatId())
-                        .setMessageId(callbackQuery.getMessage().getMessageId())
-                        .setText("2 дня активированы!");
-                try {
-                    editMessageText(new_message);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
+                dbService.updateUser(userFromDb);
+                System.out.println("Изменён пользователь: " + userFromDb);
+                new_message.setText("2 дня активированы!");
+                break;
+            case CHECK_REFERALS:
+                new_message.setText("1 уроыня:"
+                        + "\n2 уровня:"
+                        + "\n3 уровня:");
+                break;
+            default:
+                new_message.setText("Что то пошло не так обратитесь в тех. поддрежку");
                 break;
         }
+        try {
+            editMessageText(new_message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void mainContext(Message incomingMessage) {
@@ -136,14 +144,17 @@ public class TelegramService extends TelegramLongPollingBot {
                     message.setText(BotMessages.SETTINGS_MENU.getText());
                     message.setReplyMarkup(settingsMenuMarkup);
                     break;
+                case PARTNER_PROGRAM:
+                    message.setText("Чтобы пригласить участника, скопируйте и отправьте ему эту ссылку "
+                            +"\n https://t.me/Sl0wP0ke_Bot?start="+incomingMessage.getChat().getId()
+                            +"\n");
+                    //mySendMessage(message);
+                    message.setReplyMarkup(createPartnersMenu());
+                    break;
                 default:
                     message.setText(BotMessages.DEFAULT.getText());
             }
-            try {
-                sendMessage(message);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+            mySendMessage(message);
     }
 
     private LocalDate checkSubscription(Message incomingMessage) {
@@ -160,33 +171,46 @@ public class TelegramService extends TelegramLongPollingBot {
         User newUser = new User(userID,userName,firstName,lastName,chatID);
         SendMessage newMessage = new SendMessage().setChatId(chatID);
         if (message.getText().equals("/start")){
+
             dbService.addRootUser(newUser);
             System.out.println("в базу добавлен пользователь: "+newUser);
+
             newMessage.setText("Добро пожаловать, "+firstName+"!"+"\n");
             newMessage.setReplyMarkup(mainKeyboardMarkup);
-            try {
-                sendMessage(newMessage);
-                newMessage.setText("Ты здесь впервые и можешь воспользоваться пробным периодом!");
-                newMessage.setReplyMarkup(createTrialInlineButton());
-                sendMessage(newMessage);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+            mySendMessage(newMessage);
+            newMessage.setText("Ты здесь впервые и можешь воспользоваться пробным периодом!");
+            newMessage.setReplyMarkup(createTrialInlineButton());
+            mySendMessage(newMessage);
+
         }else if (message.getText().startsWith("/start=")) {
               String stringID = message.getText().substring(7);
               Long parentuserID = Long.parseLong(stringID);
-              dbService.addChildrenUser(parentuserID,newUser);
-              System.out.println("в базу добавлен пользователь: "+newUser);
-        }else {
-            newMessage.setText("Тебя еще нет в базе, отправь  /start");
             try {
-                sendMessage(newMessage);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+                dbService.addChildrenUser(parentuserID,newUser);
+                newMessage.setText("Добро пожаловать, "+firstName+"!"+"\n");
+                System.out.println("В базу добавлен приглашённый пользователь: "+newUser);
+            } catch (NoUserInDb noUserInDb) {
+                System.out.println("Ошибка в id пригласителя: "+newUser);
+                newMessage.setText("Ошибка в id пригласителя, свяжитесь с тех поддержкой, и поробуйте добавить пригласителя вручную");
             }
+            newMessage.setReplyMarkup(mainKeyboardMarkup);
+            mySendMessage(newMessage);
+            newMessage.setText("Ты здесь впервые и можешь воспользоваться пробным периодом!");
+            newMessage.setReplyMarkup(createTrialInlineButton());
+            mySendMessage(newMessage);
+        }else {
+            newMessage.setText("Ошибка! Тебя еще нет в базе, отправь  /start");
+            mySendMessage(newMessage);
         }
+    }
 
-
+    private void mySendMessage(SendMessage message){
+        try {
+            sendMessage(message);
+        } catch (TelegramApiException e) {
+            System.out.println("Не смог отправить сообщение в чат №: "+message.getChatId());
+            e.printStackTrace();
+        }
     }
 
     public void createMainKeyboardMarkup(){
@@ -263,12 +287,22 @@ public class TelegramService extends TelegramLongPollingBot {
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-        rowInline1.add(new InlineKeyboardButton().setText(" Активировать на 2 дня").setCallbackData("settrial"));
+        rowInline1.add(new InlineKeyboardButton().setText(CommandButtons.SET_TRIAL.getText()).setCallbackData(CommandButtons.SET_TRIAL.getText()));
         //List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
         //rowInline2.add(new InlineKeyboardButton().setText("2 месяца").setCallbackData("2month"));
         // Set the keyboard to the markup
         rowsInline.add(rowInline1);
         // Add it to the message
+        markupInline.setKeyboard(rowsInline);
+        return markupInline;
+    }
+
+    private InlineKeyboardMarkup createPartnersMenu(){
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        rowInline1.add(new InlineKeyboardButton().setText(CommandButtons.CHECK_REFERALS.getText()).setCallbackData(CommandButtons.CHECK_REFERALS.getText()));
+        rowsInline.add(rowInline1);
         markupInline.setKeyboard(rowsInline);
         return markupInline;
     }
