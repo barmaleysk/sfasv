@@ -99,4 +99,12 @@ public class DbService {
         User user = getUserFromDb(userId);
         return user.getEndDate();
     }
+
+    public boolean wasSubscription(long userId){
+        boolean was = true;
+        LocalDate date = getEndOfSubscription(userId);
+        if (date==null)
+            was=false;
+        return was;
+    }
 }
