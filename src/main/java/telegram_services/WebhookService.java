@@ -15,20 +15,21 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
     private DbService dbService;
 
     public WebhookService(DbService dbService) {
-        this.messageHedler = new MessageHedler(dbService,this);
         this.dbService = dbService;
+        this.messageHedler = new MessageHedler(dbService, this);
     }
 
 
     @Override
     public BotApiMethod onWebhookUpdateReceived(Update update) {
+        System.out.println("Update recived");
         SendMessage sendMessage=null;
         if (update.hasMessage()&update.getMessage().hasText()){
             long userId = update.getMessage().getChat().getId();
-            if (dbService.checkUserinDb(userId)){
+            if (!dbService.dbHasUser(userId)){
                 sendMessage = messageHedler.startContext(update.getMessage());
             } else {
-
+                sendMessage = messageHedler.mainContext(update.getMessage());
             }
         }
         return sendMessage;
@@ -36,22 +37,24 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
 
     @Override
     public String getBotUsername() {
-        return null;
+        return "Sl0wP0ke_Bot";
     }
 
     @Override
     public String getBotToken() {
-        return null;
+        return "443613733:AAFzuEjry6R_kMxZyB-pILvU4-YchwONs9M";
     }
 
     @Override
     public String getBotPath() {
-        return null;
+        return "Sl0wP0ke_Bot";
     }
 
     @Override
     public void messageSend(SendMessage message) {
         try {
+            System.out.println(" messageSend()");
+            sendMessage(new SendMessage().setChatId(245480645l).setText("отладка messageSend"));
             sendMessage(message);
         } catch (TelegramApiException e) {
             System.out.println("Не смог отправить сообщение в чат ID= "+message.getChatId());

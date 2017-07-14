@@ -4,9 +4,7 @@ import database_service.DbService;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
-import telegram_services.LongpollingSevice;
 import telegram_services.MessageHedler;
-import telegram_services.TelegramService;
 import telegram_services.WebhookService;
 
 import java.time.LocalDateTime;
@@ -29,17 +27,12 @@ public class Main {
         DbService dbService = new DbService();
         System.out.println("DbService запущен");
         ApiContextInitializer.init();
-        TelegramBotsApi telegramBotsApi = null;
         try {
-            telegramBotsApi = new TelegramBotsApi(pathToCertificateStore,certificateStorePassword,EXTERNALWEBHOOKURL,INTERNALWEBHOOKURL,pathToCertificatePublicKey);
-        } catch (TelegramApiRequestException e) {
-            System.out.println("Не смог создать telegramBotsApi для Webhook");
-            e.printStackTrace();
-        }
-        try {
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(pathToCertificateStore,certificateStorePassword,EXTERNALWEBHOOKURL,INTERNALWEBHOOKURL,pathToCertificatePublicKey);
             telegramBotsApi.registerBot(new WebhookService(dbService));
             System.out.println("TelegramService запущен");
         } catch (TelegramApiRequestException e) {
+            System.out.println("Не смог создать telegramBotsApi для Webhook");
             e.printStackTrace();
         }
     }

@@ -25,7 +25,7 @@ public class MessageHedler {
     private InlineKeyboardMarkup trialInlineButton;
     private TelegramService telegramService;
 
-    public MessageHedler(DbService dbService, TelegramService telegramService) {
+    public MessageHedler(DbService dbService, WebhookService webhookService) {
         this.dbService = dbService;
         this.telegramService = telegramService;
         mainMenuMarkup = MenuCreator.createMainMenuMarkup();
@@ -37,6 +37,7 @@ public class MessageHedler {
     }
 
     public SendMessage startContext(Message message) {
+        System.out.println("start context");
         long userID = message.getChat().getId();
         String userName = message.getChat().getUserName();
         String firstName = message.getChat().getFirstName();
@@ -44,16 +45,18 @@ public class MessageHedler {
         long chatID = message.getChatId();
         String textOfInputMessage = message.getText();
         User newUser = new User(userID,userName,firstName,lastName,chatID);
+        System.out.println("user создан " +newUser);
         SendMessage replyMessage = new SendMessage().setChatId(chatID);
-
+        replyMessage.setText("отладка контекст start");
         if (textOfInputMessage.equals("/start")){
+            System.out.println("добавляем пользователя...");
             dbService.addRootUser(newUser);
             System.out.println("в базу добавлен пользователь: "+newUser);
             replyMessage.setText("Добро пожаловать, "+firstName+"!"+"\n");
             replyMessage.setReplyMarkup(mainMenuMarkup);
-            telegramService.messageSend(replyMessage);
+            //telegramService.messageSend(replyMessage);
 
-        }else if (textOfInputMessage.startsWith("/start=")) {
+        }else if (textOfInputMessage.startsWith("/start ")) {
             String stringID = message.getText().substring(7);
             Long parentuserID = Long.parseLong(stringID);
             try {
@@ -65,13 +68,13 @@ public class MessageHedler {
                 replyMessage.setText("Добро пожаловать, "+firstName+"!"
                         +"\n Ошибка в id пригласителя, свяжитесь с тех поддержкой, и поробуйте добавить пригласителя вручную");
                 replyMessage.setReplyMarkup(mainMenuMarkup);
-                telegramService.messageSend(replyMessage);
+                //telegramService.messageSend(replyMessage);
             }
-            replyMessage.setText("Ты здесь впервые и можешь воспользоваться пробным периодом!");
-            replyMessage.setReplyMarkup(trialInlineButton);
+            //replyMessage.setText("Ты здесь впервые и можешь воспользоваться пробным периодом!");
+            //replyMessage.setReplyMarkup(trialInlineButton);
         }else {
+            System.out.println("пользователь не в базе шлёт сообщение :" + message.getText());
             replyMessage.setText("Ошибка! Тебя еще нет в базе, отправь  /start");
-
         }
         return replyMessage;
     }

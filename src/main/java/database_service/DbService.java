@@ -1,8 +1,6 @@
 package database_service;
 
 import entitys.User;
-import org.telegram.telegrambots.api.objects.Message;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -50,7 +48,7 @@ public class DbService {
         return usserFromDb;
     }
 
-    public boolean checkUserinDb(long userId){
+    public boolean dbHasUser(long userId){
         boolean check = false;
         User user = getUserFromDb(userId);
         if (user!=null)
