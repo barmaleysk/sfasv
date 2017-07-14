@@ -1,8 +1,10 @@
 package database_service;
 
 import entitys.User;
+import org.telegram.telegrambots.api.objects.Message;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +50,14 @@ public class DbService {
         return usserFromDb;
     }
 
+    public boolean checkUserinDb(long userId){
+        boolean check = false;
+        User user = getUserFromDb(userId);
+        if (user!=null)
+            check=true;
+        return check;
+    }
+
     public void addChildrenUser (long parentUserId,User childrenUser) throws NoUserInDb {
         User parentUser = getUserFromDb(parentUserId);
         if (parentUser==null){
@@ -85,5 +95,10 @@ public class DbService {
         usersList=query.getResultList();
 
         return usersList;
+    }
+
+    public LocalDate getEndOfSubscription(long userId) {
+        User user = getUserFromDb(userId);
+        return user.getEndDate();
     }
 }
