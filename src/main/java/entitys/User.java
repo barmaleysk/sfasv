@@ -20,7 +20,9 @@ import java.time.LocalDate;
         @NamedQuery(name = "User.getMaxRightKey",
                 query = "SELECT MAX(u.rightKey) FROM User u"),
         @NamedQuery(name = "User.getAllChildren",
-                query = "SELECT u FROM User u WHERE u.leftKey>:lk AND u.rightKey<:rk AND u.level>:l")
+                query = "SELECT u FROM User u WHERE u.leftKey>:lk AND u.rightKey<:rk AND u.level>:l"),
+        @NamedQuery(name = "User.getUser",
+                query = "SELECT u FROM User u WHERE u.userID=:k")
 })
 public class User implements Serializable{
     @Id @NotNull

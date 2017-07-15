@@ -43,14 +43,18 @@ public class DbService {
     public User getUserFromDb(long userId){
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
-        User usserFromDb = em.find(User.class,userId);
+        User userFromDb = em.find(User.class,userId);
         transaction.commit();
-        return usserFromDb;
+        em.refresh(userFromDb);
+        return userFromDb;
     }
 
     public boolean dbHasUser(long userId){
+        EntityTransaction transaction = em.getTransaction();
+        transaction.begin();
+        User user = em.find(User.class,userId);
+        transaction.commit();
         boolean check = false;
-        User user = getUserFromDb(userId);
         if (user!=null)
             check=true;
         return check;
@@ -75,10 +79,12 @@ public class DbService {
 
         query = em.createNamedQuery("User.calculateKeyStep2");
         query.setParameter("key",rightKey);
+        transaction = em.getTransaction();
         transaction.begin();
         query.executeUpdate();
         transaction.commit();
 
+        transaction = em.getTransaction();
         transaction.begin();
         em.persist(childrenUser);
         transaction.commit();
@@ -90,8 +96,11 @@ public class DbService {
         query.setParameter("rk",parentRightKey);
         query.setParameter("lk",parenLeftKey);
         query.setParameter("l",parentLevel);
-        usersList=query.getResultList();
 
+        EntityTransaction transaction = em.getTransaction();
+        transaction.begin();
+        usersList=query.getResultList();
+        transaction.commit();
         return usersList;
     }
 

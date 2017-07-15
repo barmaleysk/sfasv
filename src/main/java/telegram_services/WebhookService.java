@@ -23,8 +23,8 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
 
     @Override
     public BotApiMethod onWebhookUpdateReceived(Update update) {
-        //System.out.println("reciv update"+count+": "+update);
         //++count;
+        //System.out.println("reciv update"+count);
         if (update.hasCallbackQuery()) {
             System.out.println("пришел CallbackQuery: " + update.getCallbackQuery());
             EditMessageText editMessageText = messageHedler.callBackContext(update.getCallbackQuery());
@@ -33,6 +33,7 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
             long userId = update.getMessage().getChat().getId();
             SendMessage sendMessage= new SendMessage(update.getMessage().getChatId(),"Ошибка 101");
             if (!dbService.dbHasUser(userId)){
+                //System.out.println("Выбран контекст старт для update"+count);
                 sendMessage = messageHedler.startContext(update.getMessage());
             } else {
                 sendMessage = messageHedler.mainContext(update.getMessage());

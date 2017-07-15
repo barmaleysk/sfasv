@@ -43,20 +43,21 @@ public class MessageHandler {
     public SendMessage startContext(Message message) {
         System.out.println("start context");
         long userID = message.getChat().getId();
-        String userName = message.getChat().getUserName();
+        String userName = "@"+message.getChat().getUserName();
+        userName = userName==null?"NoNickName":userName;
         String firstName = message.getChat().getFirstName();
         String lastName = message.getChat().getLastName();
         long chatID = message.getChatId();
         String textOfInputMessage = message.getText();
         User newUser = new User(userID, userName, firstName, lastName, chatID);
+        newUser.setEndDate(LocalDate.now().plusDays(2));
         System.out.println("user создан " + newUser);
         SendMessage replyMessage = new SendMessage().setChatId(chatID);
-        replyMessage.setText("отладка контекст start");
         if (textOfInputMessage.equals("/start")) {
-            System.out.println("добавляем пользователя...");
             dbService.addRootUser(newUser);
             System.out.println("в базу добавлен пользователь: " + newUser);
-            replyMessage.setText("Добро пожаловать, " + firstName + "!" + "\n");
+            replyMessage.setText("Добро пожаловать, " + firstName + "!"
+                    + "\nУ вас бесплатный тестовый период 2 дня, если вам всё понравилось, то купите пописку $_$");
             replyMessage.setReplyMarkup(mainMenuMarkup);
 
         } else if (textOfInputMessage.startsWith("/start ")) {
@@ -64,13 +65,16 @@ public class MessageHandler {
             Long parentuserID = Long.parseLong(stringID);
             try {
                 dbService.addChildrenUser(parentuserID, newUser);
-                replyMessage.setText("Добро пожаловать, " + firstName + "!" + "\n");
+                replyMessage.setText("Добро пожаловать, " + firstName + "!"
+                        + "\nУ вас бесплатный тестовый период 2 дня, если вам всё понравилось, то купите пописку $_$");
                 replyMessage.setReplyMarkup(mainMenuMarkup);
                 System.out.println("В базу добавлен приглашённый пользователь: " + newUser);
             } catch (NoUserInDb noUserInDb) {
+                dbService.addRootUser(newUser);
                 System.out.println("Ошибка в id пригласителя: " + newUser);
                 replyMessage.setText("Добро пожаловать, " + firstName + "!"
-                        + "\n Ошибка в id пригласителя, свяжитесь с тех поддержкой, и поробуйте добавить пригласителя вручную");
+                        + "\n Ошибка в id пригласителя, свяжитесь с тех поддержкой, и поробуйте добавить пригласителя вручную"
+                        +"\nУ вас бесплатный тестовый период 2 дня, если вам всё понравилось, то купите пописку $_$");
                 replyMessage.setReplyMarkup(mainMenuMarkup);
             }
         } else {
@@ -151,7 +155,7 @@ public class MessageHandler {
                 break;
             case CHECK_REFERALS:
                 User parentUser = dbService.getUserFromDb(incomingMessage.getChat().getId());
-                System.out.println(parentUser);
+                //System.out.println(parentUser);
                 int parentLevel = parentUser.getLevel();
                 int parentLeftKey = parentUser.getLeftKey();
                 int parentRightKey = parentUser.getRightKey();
@@ -166,11 +170,11 @@ public class MessageHandler {
                     for (User u : userList) {
                         System.out.println(u);
                         if (parentLevel + 1 == u.getLevel()) {
-                            level1 = level1 + " " + u.getUserName() + "-" + u.getFirstName()+";";
+                            level1 = level1 + " " + u.getUserName() + "-" + u.getFirstName()+";\n";
                         } else if (parentLevel + 2 == u.getLevel()) {
-                            level2 = level2 + " " + u.getUserName() + "-" + u.getFirstName();
+                            level2 = level2 + " " + u.getUserName() + "-" + u.getFirstName()+";\n";
                         } else {
-                            level3 = level3 + " " + u.getUserName() + "-" + u.getFirstName();
+                            level3 = level3 + " " + u.getUserName() + "-" + u.getFirstName()+"\n";
                         }
                     }
                     text = "Рефералы 1го уровня: "
