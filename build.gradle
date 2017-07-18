@@ -26,7 +26,7 @@ dependencies {
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.10.Final'
     compile group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
     compileJava.options.encoding = 'UTF-8'
-    compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '9.4.6.v20170531'
-    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.6.v20170531'
+    //compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '9.4.6.v20170531'
+    //compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.6.v20170531'
 
 }

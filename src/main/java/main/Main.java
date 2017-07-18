@@ -1,13 +1,9 @@
 package main;
 
 import database_service.DbService;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
-import serlets.TestServlet;
 import telegram_services.WebhookService;
 
 /**
@@ -34,7 +30,7 @@ public class Main {
             System.out.println("Не смог создать telegramBotsApi для Webhook");
             e.printStackTrace();
         }
-        TestServlet testServlet = new TestServlet(webhookService);
+       /* TestServlet testServlet = new TestServlet(webhookService);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(testServlet),"/*");
         Server server = new Server(8080);
@@ -42,5 +38,6 @@ public class Main {
         server.start();
         System.out.println("Jetty started");
         server.join();
+        */
     }
 }
