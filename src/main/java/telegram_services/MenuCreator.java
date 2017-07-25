@@ -21,10 +21,13 @@ public class  MenuCreator {
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(CommandButtons.INFO_BOT.getText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
-        keyboardRow3.add(new KeyboardButton(CommandButtons.SETTINGS.getText()));
+        keyboardRow3.add(new KeyboardButton(CommandButtons.PARTNER_PROGRAM.getText()));
+        KeyboardRow keyboardRow4 = new KeyboardRow();
+        keyboardRow4.add(new KeyboardButton(CommandButtons.SETTINGS.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
+        keyboardRows.add(keyboardRow4);
         keyboardMarkup.setKeyboard(keyboardRows);
         // mainMenuMarkup.setOneTimeKeyboard(true);
         keyboardMarkup.setResizeKeyboard(true);
@@ -39,9 +42,10 @@ public class  MenuCreator {
         keyboardRow1.add(new KeyboardButton(CommandButtons.TWO_MONTH.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(CommandButtons.THREE_MONTH.getText()));
-        keyboardRow2.add(new KeyboardButton(CommandButtons.CHECK_SUBSCRIPTION.getText()));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.VIP_CHAT.getText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
         keyboardRow3.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
+        keyboardRow3.add(new KeyboardButton(CommandButtons.CHECK_SUBSCRIPTION.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
@@ -76,16 +80,34 @@ public class  MenuCreator {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
         keyboardRow1.add(new KeyboardButton(CommandButtons.REQUISITES.getText()));
-        keyboardRow1.add(new KeyboardButton(CommandButtons.PARTNER_PROGRAM.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
-        keyboardRow2.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
-        keyboardRow2.add(new KeyboardButton(CommandButtons.ADD_REFERAL.getText()));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.SITE_ACCOUNT.getText()));
+        KeyboardRow keyboardRow3 = new KeyboardRow();
+        keyboardRow3.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
+       // keyboardRow2.add(new KeyboardButton(CommandButtons.ADD_REFERAL.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardMarkup.setKeyboard(keyboardRows);
         keyboardMarkup.setResizeKeyboard(true);
         return keyboardMarkup;
     }
+
+    public static ReplyKeyboardMarkup createPartnersMenu(){
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton(CommandButtons.LOCAL_WALLET.getText()));
+        keyboardRow1.add(new KeyboardButton(CommandButtons.INVITE_PARTNER.getText()));
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        keyboardRow2.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.CHECK_REFERALS.getText()));
+        keyboardRows.add(keyboardRow1);
+        keyboardRows.add(keyboardRow2);
+        keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setResizeKeyboard(true);
+        return keyboardMarkup;
+    }
+
 
     public static InlineKeyboardMarkup createTrialInlineButton(){
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
@@ -101,18 +123,17 @@ public class  MenuCreator {
         return markupInline;
     }
 
-    public static ReplyKeyboardMarkup createPartnersMenu(){
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-        KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton(CommandButtons.INVITE_PARTNER.getText()));
-        KeyboardRow keyboardRow2 = new KeyboardRow();
-        keyboardRow2.add(new KeyboardButton(CommandButtons.BACK_IN_SETTINGS.getText()));
-        keyboardRow2.add(new KeyboardButton(CommandButtons.CHECK_REFERALS.getText()));
-        keyboardRows.add(keyboardRow1);
-        keyboardRows.add(keyboardRow2);
-        keyboardMarkup.setKeyboard(keyboardRows);
-        keyboardMarkup.setResizeKeyboard(true);
-        return keyboardMarkup;
+    public static InlineKeyboardMarkup createPayButton(String parameters){
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        rowInline1.add(new InlineKeyboardButton()
+                .setText(CommandButtons.PAY_BUTTOM.getText())
+                .setUrl(CommandButtons.URL_FORM_FOR_AC.getText()+"?"+parameters));
+        rowsInline.add(rowInline1);
+        markupInline.setKeyboard(rowsInline);
+        return markupInline;
     }
+
+
 }

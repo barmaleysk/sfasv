@@ -8,26 +8,33 @@ public enum CommandButtons {
     //main menu
     OFORMIT_PODPISCU("Оформить подписку"),
     INFO_BOT("Информация"),
+    PARTNER_PROGRAM("Партнёрская программа"),
     SETTINGS("Параметры"),
     //subscripe menu
-    ONE_MONTH("30 дней = 100р"),
-    TWO_MONTH("60 дней = 180р"),
-    THREE_MONTH("90 дней = 240р"),
+    ONE_MONTH("Стоимость подписки на 1 месяц = 6р" +
+            "\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
+    TWO_MONTH("Стоимость подписки на 2 месяца = 7р"
+            +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
+    THREE_MONTH("Стоимость подписки на 3 месяца = 8р"
+            +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
     CHECK_SUBSCRIPTION("Проверить подписку"),
     BACK_IN_MAIN_MENU("<- Главное меню"),
+    VIP_CHAT("VIP чат"),
+    PAY_BUTTOM("оплатить"),
+    URL_FORM_FOR_AC("http://290193.msk-kvm.ru/redirectToAdvcash"),
     //info menu
     GENERAL_DESCRIPTION("Общее описание"),
     FAQ("FAQ"),
     HOW_TO_CHANGE_CURRENCY("Как обменять криптовалюту"),
     SUPPORT("Тех поддержка"),
     //settings menu
-    REQUISITES("Добавить платежные реквезиты"),
-    PARTNER_PROGRAM("Партнёрская программа"),
-    ADD_REFERAL("Прикрутить рефера"),
+    REQUISITES("Изменить платежные реквезиты"),
+    SITE_ACCOUNT("Аккаунт для сайта"),
     //partners menu
+    LOCAL_WALLET("мои бонусы"),
     INVITE_PARTNER("Пригласить"),
     CHECK_REFERALS("Посмотреть рефералов"),
-    BACK_IN_SETTINGS("<- настройки"),
+    ADD_REFERAL("Прикрутить рефера"),
     //trial buttom
     SET_TRIAL("Активировать на 2 дня"),
     //FAIL

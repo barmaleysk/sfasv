@@ -11,6 +11,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,11 +28,9 @@ public class MessageHandler {
     private ReplyKeyboardMarkup settingsMenuMarkup;
     private ReplyKeyboardMarkup partnerMenuMarkup;
     private InlineKeyboardMarkup trialInlineButton;
-    private TelegramService telegramService;
 
-    public MessageHandler(DbService dbService, WebhookService webhookService) {
+    public MessageHandler(DbService dbService) {
         this.dbService = dbService;
-        this.telegramService = telegramService;
         mainMenuMarkup = MenuCreator.createMainMenuMarkup();
         subscripMenuMarkup = MenuCreator.createSubscripMenuMarkup();
         infoMenuMarkup = MenuCreator.createInfoMenuMarkup();
@@ -119,12 +118,18 @@ public class MessageHandler {
                 break;
             case ONE_MONTH:
                 message.setText(BotMessages.ONE_MONTH.getText());
+                message.setReplyMarkup(
+                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"typeOfParchase=oneMonth"));
                 break;
             case TWO_MONTH:
                 message.setText(BotMessages.TWO_MONTH.getText());
+                message.setReplyMarkup(
+                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"typeOfParchase=twoMonth"));
                 break;
             case THREE_MONTH:
                 message.setText(BotMessages.THREE_MONTH.getText());
+                message.setReplyMarkup(
+                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"typeOfParchase=threeMonth"));
                 break;
             case CHECK_SUBSCRIPTION:
                 LocalDate endDate = dbService.getEndOfSubscription(incomingMessage.getChat().getId());
@@ -186,10 +191,10 @@ public class MessageHandler {
                 }
                 message.setText(text);
                 break;
-            case BACK_IN_SETTINGS:
-                message.setText(BotMessages.SETTINGS_MENU.getText());
-                message.setReplyMarkup(settingsMenuMarkup);
-                break;
+            case LOCAL_WALLET:
+                User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
+                //BigDecimal cash = user.getLoacalWallet();
+
             default:
                 message.setText(BotMessages.DEFAULT.getText());
         }
