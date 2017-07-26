@@ -49,7 +49,7 @@ public class MessageHandler {
         long chatID = message.getChatId();
         String textOfInputMessage = message.getText();
         User newUser = new User(userID, userName, firstName, lastName, chatID);
-        newUser.setEndDate(LocalDate.now().plusDays(2));
+        newUser.setEndDateOfSubscription(LocalDateTime.now().plusDays(2));
         System.out.println("user создан " + newUser);
         SendMessage replyMessage = new SendMessage().setChatId(chatID);
         if (textOfInputMessage.equals("/start")) {
@@ -160,7 +160,6 @@ public class MessageHandler {
                 break;
             case CHECK_REFERALS:
                 User parentUser = dbService.getUserFromDb(incomingMessage.getChat().getId());
-                //System.out.println(parentUser);
                 int parentLevel = parentUser.getLevel();
                 int parentLeftKey = parentUser.getLeftKey();
                 int parentRightKey = parentUser.getRightKey();
@@ -193,8 +192,8 @@ public class MessageHandler {
                 break;
             case LOCAL_WALLET:
                 User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
-                //BigDecimal cash = user.getLoacalWallet();
-
+                BigDecimal cash = user.getLocalWallet();
+                message.setText(" На вашем счету:"+cash);
             default:
                 message.setText(BotMessages.DEFAULT.getText());
         }
@@ -210,7 +209,7 @@ public class MessageHandler {
         switch (button) {
             case SET_TRIAL:
                 User userFromDb = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
-                userFromDb.setEndDate(LocalDate.now().plusDays(2));
+                userFromDb.setEndDateOfSubscription(LocalDateTime.now().plusDays(2));
                 dbService.updateUser(userFromDb);
                 System.out.println("Изменён пользователь: " + userFromDb);
                 new_message.setText("2 дня активированы!");

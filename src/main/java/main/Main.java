@@ -18,7 +18,7 @@ public class Main {
     private static final String certificateStorePassword = "megapokemon"; //password for your certificate-store
 
     public static void main(String[] args) throws Exception {
-        DbService dbService = new DbService();
+        DbService dbService = DbService.getInstance();
         System.out.println("DbService запущен");
         ApiContextInitializer.init();
         WebhookService webhookService = new WebhookService(dbService);

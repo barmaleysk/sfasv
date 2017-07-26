@@ -10,19 +10,26 @@ import java.util.List;
  * Created by kuteynikov on 29.06.2017.
  */
 public class DbService {
-    EntityManager em;
-    public DbService() {
-        this.em = Persistence.createEntityManagerFactory("MySql").createEntityManager();
+    private static DbService dbService;
+    private EntityManager em;
+    private DbService() {
+        this.em = Persistence.createEntityManagerFactory("eclipsMysql").createEntityManager();
     }
 
-    public void updateUser(User user){
+    public static DbService getInstance(){
+        if (dbService==null)
+            dbService=new DbService();
+        return dbService;
+    }
+
+    public synchronized void updateUser(User user){
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         em.persist(user);
         transaction.commit();
     }
 
-    public void addRootUser(User user){
+    public synchronized void addRootUser(User user){
         TypedQuery<Integer> typedQuery = em.createNamedQuery("User.getMaxRightKey",Integer.class);
         Integer maxRightKey=typedQuery.getSingleResult();
         if (maxRightKey!=null) {
@@ -40,7 +47,7 @@ public class DbService {
         transaction.commit();
     }
 
-    public User getUserFromDb(long userId){
+    public synchronized User getUserFromDb(long userId){
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         User userFromDb = em.find(User.class,userId);
@@ -49,7 +56,7 @@ public class DbService {
         return userFromDb;
     }
 
-    public boolean dbHasUser(long userId){
+    public synchronized boolean dbHasUser(long userId){
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         User user = em.find(User.class,userId);
@@ -60,7 +67,7 @@ public class DbService {
         return check;
     }
 
-    public void addChildrenUser (long parentUserId,User childrenUser) throws NoUserInDb {
+    public synchronized void addChildrenUser (long parentUserId,User childrenUser) throws NoUserInDb {
         User parentUser = getUserFromDb(parentUserId);
         if (parentUser==null){
             throw new NoUserInDb();
@@ -90,7 +97,7 @@ public class DbService {
         transaction.commit();
     }
 
-    public List<User> getChildrenUsers(int parentLevel,int parenLeftKey, int parentRightKey ){
+    public synchronized List<User> getChildrenUsers(int parentLevel,int parenLeftKey, int parentRightKey ){
         List<User> usersList = new ArrayList<>();
         TypedQuery<User> query = em.createNamedQuery("User.getAllChildren",User.class);
         query.setParameter("rk",parentRightKey);
@@ -104,12 +111,12 @@ public class DbService {
         return usersList;
     }
 
-    public LocalDate getEndOfSubscription(long userId) {
+    public synchronized LocalDate getEndOfSubscription(long userId) {
         User user = getUserFromDb(userId);
-        return user.getEndDate();
+        return user.getEndDateOfSubscription().toLocalDate();
     }
 
-    public boolean wasSubscription(long userId){
+    public synchronized  boolean wasSubscription(long userId){
         boolean was = true;
         LocalDate date = getEndOfSubscription(userId);
         if (date==null)
