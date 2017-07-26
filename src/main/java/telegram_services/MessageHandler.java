@@ -9,7 +9,6 @@ import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,6 +27,7 @@ public class MessageHandler {
     private ReplyKeyboardMarkup settingsMenuMarkup;
     private ReplyKeyboardMarkup partnerMenuMarkup;
     private InlineKeyboardMarkup trialInlineButton;
+    private TelegramService telegramService;
 
     public MessageHandler(DbService dbService) {
         this.dbService = dbService;
@@ -37,6 +37,7 @@ public class MessageHandler {
         settingsMenuMarkup = MenuCreator.createSettingsMenuMarkup();
         partnerMenuMarkup = MenuCreator.createPartnersMenu();
         trialInlineButton = MenuCreator.createTrialInlineButton();
+
     }
 
     public SendMessage startContext(Message message) {
@@ -119,17 +120,17 @@ public class MessageHandler {
             case ONE_MONTH:
                 message.setText(BotMessages.ONE_MONTH.getText());
                 message.setReplyMarkup(
-                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"typeOfParchase=oneMonth"));
+                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=oneMonth"));
                 break;
             case TWO_MONTH:
                 message.setText(BotMessages.TWO_MONTH.getText());
                 message.setReplyMarkup(
-                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"typeOfParchase=twoMonth"));
+                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=twoMonth"));
                 break;
             case THREE_MONTH:
                 message.setText(BotMessages.THREE_MONTH.getText());
                 message.setReplyMarkup(
-                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"typeOfParchase=threeMonth"));
+                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=threeMonth"));
                 break;
             case CHECK_SUBSCRIPTION:
                 LocalDate endDate = dbService.getEndOfSubscription(incomingMessage.getChat().getId());
@@ -193,7 +194,10 @@ public class MessageHandler {
             case LOCAL_WALLET:
                 User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
                 BigDecimal cash = user.getLocalWallet();
-                message.setText(" На вашем счету:"+cash);
+                message.setText("На вашем счету:"+cash);
+                break;
+            case SET_REFER:
+               message.setText(TextMessage.SET_REFER.getText());
             default:
                 message.setText(BotMessages.DEFAULT.getText());
         }
@@ -219,5 +223,25 @@ public class MessageHandler {
                 break;
         }
         return new_message;
+    }
+
+    public void setTelegramService(TelegramService telegramService) {
+        this.telegramService = telegramService;
+    }
+
+    public SendMessage commandContext(Message incomingMessage) {
+        String textIncomingMessage=incomingMessage.getText();
+        String textReplyMessage=TextMessage.COMMAND_ERROR.getText();
+        SendMessage replyMessage = new SendMessage().setChatId(incomingMessage.getChatId());
+        if (textIncomingMessage.startsWith(CommandButtons.SET_REFER_COMMAND.getText())) {
+            try {
+                Long userID = Long.parseLong(textIncomingMessage.substring(7));
+                dbService.changeParentUser(userID);
+                textReplyMessage = TextMessage.REFER_SETTED.getText();
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        return replyMessage.setText(textReplyMessage);
     }
 }

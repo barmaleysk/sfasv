@@ -50,10 +50,10 @@ public class User implements Serializable{
     @Column(scale = 2,precision = 10)
     private BigDecimal localWallet;
     private String advcashWallet;
-    @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<AdvcashTransaction> advcashTransactions;
 
-    @ManyToMany(mappedBy = "childrenUsers",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "childrenUsers",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<LocalTransaction> localTransactions;
 
     User() {}

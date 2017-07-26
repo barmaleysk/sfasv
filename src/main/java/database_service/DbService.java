@@ -77,23 +77,18 @@ public class DbService {
         childrenUser.setLeftKey(rightKey);
         childrenUser.setRightKey(rightKey+1);
 
-        Query query = em.createNamedQuery("User.calculateKeyStep1");
-        query.setParameter("key",rightKey);
+        Query query1 = em.createNamedQuery("User.calculateKeyStep1");
+        query1.setParameter("key",rightKey);
+
+        Query query2 = em.createNamedQuery("User.calculateKeyStep2");
+        query2.setParameter("key",rightKey);
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
-        query.executeUpdate();
-        transaction.commit();
 
-        query = em.createNamedQuery("User.calculateKeyStep2");
-        query.setParameter("key",rightKey);
-        transaction = em.getTransaction();
-        transaction.begin();
-        query.executeUpdate();
-        transaction.commit();
-
-        transaction = em.getTransaction();
-        transaction.begin();
+        query1.executeUpdate();
+        query2.executeUpdate();
         em.persist(childrenUser);
+
         transaction.commit();
     }
 
@@ -122,5 +117,9 @@ public class DbService {
         if (date==null)
             was=false;
         return was;
+    }
+
+    public void changeParentUser(Long userID) {
+
     }
 }

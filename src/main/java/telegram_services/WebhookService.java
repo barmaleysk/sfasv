@@ -12,13 +12,14 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
  * Created by kuteynikov on 14.07.2017.
  */
 public class WebhookService extends TelegramWebhookBot implements TelegramService {
-    private MessageHandler messageHedler;
+    private MessageHandler messageHandler;
     private DbService dbService;
     private int count=0;
 
     public WebhookService(DbService dbService) {
         this.dbService = dbService;
-        this.messageHedler = new MessageHandler(dbService);
+        this.messageHandler = new MessageHandler(dbService);
+        messageHandler.setTelegramService(this);
     }
 
     @Override
@@ -27,15 +28,17 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
         //System.out.println("reciv update"+count);
         if (update.hasCallbackQuery()) {
             System.out.println("пришел CallbackQuery: " + update.getCallbackQuery());
-            EditMessageText editMessageText = messageHedler.callBackContext(update.getCallbackQuery());
+            EditMessageText editMessageText = messageHandler.callBackContext(update.getCallbackQuery());
             return editMessageText;
         } else if (update.hasMessage()&update.getMessage().hasText()){
             long userId = update.getMessage().getChat().getId();
-            SendMessage sendMessage= new SendMessage(update.getMessage().getChatId(),"Ошибка 101");
+            SendMessage sendMessage;
             if (!dbService.dbHasUser(userId)){
-                sendMessage = messageHedler.startContext(update.getMessage());
+                sendMessage = messageHandler.startContext(update.getMessage());
+            }else if (update.getMessage().getText().startsWith("/")){
+                sendMessage = messageHandler.commandContext(update.getMessage());
             } else {
-                sendMessage = messageHedler.mainContext(update.getMessage());
+                sendMessage = messageHandler.mainContext(update.getMessage());
             }
             return sendMessage;
         } else {

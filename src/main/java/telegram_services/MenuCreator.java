@@ -87,6 +87,7 @@ public class  MenuCreator {
        // keyboardRow2.add(new KeyboardButton(CommandButtons.ADD_REFERAL.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
+        keyboardRows.add(keyboardRow3);
         keyboardMarkup.setKeyboard(keyboardRows);
         keyboardMarkup.setResizeKeyboard(true);
         return keyboardMarkup;
@@ -100,9 +101,13 @@ public class  MenuCreator {
         keyboardRow1.add(new KeyboardButton(CommandButtons.INVITE_PARTNER.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
+        //keyboardRow2.add(new KeyboardButton(CommandButtons.SET_REFER.getText()));
         keyboardRow2.add(new KeyboardButton(CommandButtons.CHECK_REFERALS.getText()));
+        //KeyboardRow keyboardRow3 = new KeyboardRow();
+       // keyboardRow3.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
+        //keyboardRows.add(keyboardRow3);
         keyboardMarkup.setKeyboard(keyboardRows);
         keyboardMarkup.setResizeKeyboard(true);
         return keyboardMarkup;
@@ -134,6 +139,4 @@ public class  MenuCreator {
         markupInline.setKeyboard(rowsInline);
         return markupInline;
     }
-
-
 }

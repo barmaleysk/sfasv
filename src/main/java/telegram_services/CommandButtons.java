@@ -11,12 +11,9 @@ public enum CommandButtons {
     PARTNER_PROGRAM("Партнёрская программа"),
     SETTINGS("Параметры"),
     //subscripe menu
-    ONE_MONTH("Стоимость подписки на 1 месяц = 6р" +
-            "\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
-    TWO_MONTH("Стоимость подписки на 2 месяца = 7р"
-            +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
-    THREE_MONTH("Стоимость подписки на 3 месяца = 8р"
-            +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
+    ONE_MONTH("1 месяц"),
+    TWO_MONTH("2 месяца"),
+    THREE_MONTH("3 месяца"),
     CHECK_SUBSCRIPTION("Проверить подписку"),
     BACK_IN_MAIN_MENU("<- Главное меню"),
     VIP_CHAT("VIP чат"),
@@ -34,7 +31,8 @@ public enum CommandButtons {
     LOCAL_WALLET("мои бонусы"),
     INVITE_PARTNER("Пригласить"),
     CHECK_REFERALS("Посмотреть рефералов"),
-    ADD_REFERAL("Прикрутить рефера"),
+    SET_REFER("Установить моего рефера"),
+    SET_REFER_COMMAND("/refer "),
     //trial buttom
     SET_TRIAL("Активировать на 2 дня"),
     //FAIL

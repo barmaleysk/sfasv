@@ -30,7 +30,7 @@
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/WebBot?useSSL=false&amp;useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC"/>
             <property name="javax.persistence.jdbc.user" value="WebBot"/>
             <property name="javax.persistence.jdbc.password" value="MegaP0kem0n"/>
-            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <property name="javax.persistence.schema-generation.database.action" value="update"/>
         </properties>
     </persistence-unit>
 </persistence>
