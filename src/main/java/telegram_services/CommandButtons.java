@@ -16,11 +16,12 @@ public enum CommandButtons {
     THREE_MONTH("3 месяца"),
     CHECK_SUBSCRIPTION("Проверить подписку"),
     BACK_IN_MAIN_MENU("<- Главное меню"),
-    VIP_CHAT("VIP чат"),
+    PRIVATE_CHAT("VIP подписка"),
+    UNLIMIT("Аудит портфеля"),
     PAY_BUTTOM("оплатить"),
     URL_FORM_FOR_AC("http://290193.msk-kvm.ru/redirectToAdvcash"),
     //info menu
-    GENERAL_DESCRIPTION("Общее описание"),
+    GENERAL_DESCRIPTION("О нас"),
     FAQ("FAQ"),
     HOW_TO_CHANGE_CURRENCY("Как обменять криптовалюту"),
     SUPPORT("Тех поддержка"),
@@ -29,6 +30,7 @@ public enum CommandButtons {
     SITE_ACCOUNT("Аккаунт для сайта"),
     //partners menu
     LOCAL_WALLET("мои бонусы"),
+    REQUEST_PAYMENT_BUTTON("запросить выплату бонусов"),
     INVITE_PARTNER("Пригласить"),
     CHECK_REFERALS("Посмотреть рефералов"),
     SET_REFER("Установить моего рефера"),

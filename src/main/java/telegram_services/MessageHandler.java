@@ -120,12 +120,12 @@ public class MessageHandler {
             case ONE_MONTH:
                 message.setText(BotMessages.ONE_MONTH.getText());
                 message.setReplyMarkup(
-                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=oneMonth"));
+                        MenuCreator.createPayButton(""));
                 break;
             case TWO_MONTH:
                 message.setText(BotMessages.TWO_MONTH.getText());
                 message.setReplyMarkup(
-                        MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=twoMonth"));
+                        MenuCreator.createPayButton(""));
                 break;
             case THREE_MONTH:
                 message.setText(BotMessages.THREE_MONTH.getText());

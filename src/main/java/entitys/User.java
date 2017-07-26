@@ -165,6 +165,8 @@ public class User implements Serializable{
     }
 
 
+
+
     public BigDecimal getLocalWallet() {
         return this.localWallet==null ? new BigDecimal("0.00") : this.localWallet;
     }
@@ -211,4 +213,6 @@ public class User implements Serializable{
                 +"| Тип: "+getTypeUser()
                 +"| конец подписки: "+endDateOfSubscription;
     }
+
+
 }

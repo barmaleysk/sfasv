@@ -42,13 +42,16 @@ public class  MenuCreator {
         keyboardRow1.add(new KeyboardButton(CommandButtons.TWO_MONTH.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(CommandButtons.THREE_MONTH.getText()));
-        keyboardRow2.add(new KeyboardButton(CommandButtons.VIP_CHAT.getText()));
+        keyboardRow2.add(new KeyboardButton(CommandButtons.PRIVATE_CHAT.getText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
-        keyboardRow3.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
+        keyboardRow3.add(new KeyboardButton(CommandButtons.UNLIMIT.getText()));
         keyboardRow3.add(new KeyboardButton(CommandButtons.CHECK_SUBSCRIPTION.getText()));
+        KeyboardRow keyboardRow4 = new KeyboardRow();
+        keyboardRow4.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
+        keyboardRows.add(keyboardRow4);
         keyboardMarkup.setKeyboard(keyboardRows);
         //subscripMenuMarkup.setOneTimeKeyboard(true);
         keyboardMarkup.setResizeKeyboard(true);
@@ -135,6 +138,18 @@ public class  MenuCreator {
         rowInline1.add(new InlineKeyboardButton()
                 .setText(CommandButtons.PAY_BUTTOM.getText())
                 .setUrl(CommandButtons.URL_FORM_FOR_AC.getText()+"?"+parameters));
+        rowsInline.add(rowInline1);
+        markupInline.setKeyboard(rowsInline);
+        return markupInline;
+    }
+
+    public static InlineKeyboardMarkup createPaymentsBonusButton(){
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        rowInline1.add(new InlineKeyboardButton()
+                .setText(CommandButtons.REQUEST_PAYMENT_BUTTON.getText())
+                .setCallbackData(CommandButtons.REQUEST_PAYMENT_BUTTON.getText()));
         rowsInline.add(rowInline1);
         markupInline.setKeyboard(rowsInline);
         return markupInline;
