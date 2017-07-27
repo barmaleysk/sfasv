@@ -25,10 +25,8 @@ import java.util.List;
 /**
  * Created by kuteynikov on 14.07.2017.
  */
-public class WebhookService extends TelegramWebhookBot implements TelegramService {
-    private MessageHandler messageHandler;
+public class WebhookService extends TelegramWebhookBot  {
     private DbService dbService;
-    private int count=0;
     private ReplyKeyboardMarkup mainMenuMarkup;
     private ReplyKeyboardMarkup subscripMenuMarkup;
     private ReplyKeyboardMarkup infoMenuMarkup;
@@ -227,9 +225,9 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
                 BigDecimal cash = user.getLocalWallet();
                 String string = "На вашем счету: *"+cash +"*"
                                 +"\n\nОставьте заявку, чтобы вывести бонусы на ваш счет."
-                                + "\n Проверте праильно ли укзан ваш кошлек(если нет, смените его в настройках):"
+                                + "\n Проверте, правильно ли укзан ваш кошелек(если нет, смените его в настройках):"
                                 + "\n Advcash:"+user.getAdvcashWallet()
-                                + "\n Балан должен быть положительным."
+                                + "\n Баланс должен быть положительным."
                                 + "\n Зявки обрабатываются в конце недели.\n";
                 message.setText(string);
                 message.setReplyMarkup(MenuCreator.createPaymentsBonusButton());
@@ -330,13 +328,4 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
         return "Sl0wP0ke_Bot";
     }
 
-    @Override
-    public void messageSend(SendMessage message) {
-        try{
-            sendMessage(message);
-        } catch (TelegramApiException e) {
-            System.out.println("Не смог отправить сообщение в чат ID= "+message.getChatId());
-            e.printStackTrace();
-        }
-    }
 }
