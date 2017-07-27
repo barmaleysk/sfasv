@@ -16,8 +16,8 @@ public enum CommandButtons {
     THREE_MONTH("3 месяца"),
     CHECK_SUBSCRIPTION("Проверить подписку"),
     BACK_IN_MAIN_MENU("<- Главное меню"),
-    PRIVATE_CHAT("VIP подписка"),
-    UNLIMIT("Аудит портфеля"),
+    PRIVATE_CHAT("Аудит портфеля"),
+    UNLIMIT("VIP подписка"),
     PAY_BUTTOM("оплатить"),
     URL_FORM_FOR_AC("http://290193.msk-kvm.ru/redirectToAdvcash"),
     //info menu
@@ -34,11 +34,16 @@ public enum CommandButtons {
     INVITE_PARTNER("Пригласить"),
     CHECK_REFERALS("Посмотреть рефералов"),
     SET_REFER("Установить моего рефера"),
-    SET_REFER_COMMAND("/refer "),
     //trial buttom
     SET_TRIAL("Активировать на 2 дня"),
     //FAIL
-    FAIL("Я пока не знаю что на это ответить")
+    FAIL("Я пока не знаю что на это ответить"),
+    //admin command
+    SET_MENEGERS_MENU("/управление"),
+    CHECK_SUBSRIPTIONS("/подписчики"),
+    CHECK_TASKS_PAYMENT("/заявки на выплаты"),
+    CHECK_PRIVATE_CHAT("/заявки на чат"),
+    SEND_SIGNAL("/сигнал")
     ;
 
     public String getText() {

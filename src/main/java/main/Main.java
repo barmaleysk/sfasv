@@ -30,14 +30,5 @@ public class Main {
             System.out.println("Не смог создать telegramBotsApi для Webhook");
             e.printStackTrace();
         }
-       /* TestServlet testServlet = new TestServlet(webhookService);
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.addServlet(new ServletHolder(testServlet),"/*");
-        Server server = new Server(8080);
-        server.setHandler(context);
-        server.start();
-        System.out.println("Jetty started");
-        server.join();
-        */
     }
 }

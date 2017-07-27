@@ -68,12 +68,9 @@ public class WebhookService extends TelegramWebhookBot  {
         }
     }
 
-
     public SendMessage startContext(Message message) {
-        System.out.println("start context");
         long userID = message.getChat().getId();
         String userName = "@"+message.getChat().getUserName();
-        userName = userName==null?"NoNickName":userName;
         String firstName = message.getChat().getFirstName();
         String lastName = message.getChat().getLastName();
         long chatID = message.getChatId();
@@ -298,19 +295,12 @@ public class WebhookService extends TelegramWebhookBot  {
 
 
     public SendMessage commandContext(Message incomingMessage) {
-        String textIncomingMessage=incomingMessage.getText();
-        String textReplyMessage=TextMessage.COMMAND_ERROR.getText();
-        SendMessage replyMessage = new SendMessage().setChatId(incomingMessage.getChatId());
-        if (textIncomingMessage.startsWith(CommandButtons.SET_REFER_COMMAND.getText())) {
-            try {
-                Long userID = Long.parseLong(textIncomingMessage.substring(7));
-               // dbService.changeParentUser(userID);
-                textReplyMessage = TextMessage.REFER_SETTED.getText();
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
+        String textIncomingMessage = incomingMessage.getText();
+        if (textIncomingMessage.startsWith(CommandButtons.SEND_SIGNAL.getText())){
+          //  List<>
         }
-        return replyMessage.setText(textReplyMessage);
+
+        return null;
     }
 
     @Override
