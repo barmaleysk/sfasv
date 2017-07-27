@@ -1,5 +1,6 @@
 package database_service;
 
+import entitys.Tasks;
 import entitys.User;
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -119,7 +120,15 @@ public class DbService {
         return was;
     }
 
-    public void changeParentUser(Long userID) {
+
+    public void addTask(long userID, Tasks task) {
+        System.out.println("сохраняем tasks");
+        EntityTransaction tr = em.getTransaction();
+        tr.begin();
+        User user = em.find(User.class,userID);
+        user.setTask(task);
+        tr.commit();
+        System.out.println("tasks сохранен");
 
     }
 }

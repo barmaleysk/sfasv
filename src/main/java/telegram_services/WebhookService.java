@@ -2,6 +2,9 @@ package telegram_services;
 
 import database_service.DbService;
 import database_service.NoUserInDb;
+import entitys.TaskStatus;
+import entitys.TaskType;
+import entitys.Tasks;
 import entitys.User;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -222,11 +225,14 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
             case LOCAL_WALLET:
                 User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
                 BigDecimal cash = user.getLocalWallet();
-                message.setText("На вашем счету: *"+cash +"р*"
-                                +"\n\nОставьте заявку, чтобы перевести бонусы на ваш кошелек Advcash:"+user.getAdvcashWallet()
-                                + ".\nВремя обработки не более 2х дней");
-                //messageSend(walletMessage);
-                 message.setReplyMarkup(MenuCreator.createPaymentsBonusButton());
+                String string = "На вашем счету: *"+cash +"*"
+                                +"\n\nОставьте заявку, чтобы вывести бонусы на ваш счет."
+                                + "\n Проверте праильно ли укзан ваш кошлек(если нет, смените его в настройках):"
+                                + "\n Advcash:"+user.getAdvcashWallet()
+                                + "\n Балан должен быть положительным."
+                                + "\n Зявки обрабатываются в конце недели.\n";
+                message.setText(string);
+                message.setReplyMarkup(MenuCreator.createPaymentsBonusButton());
                 break;
             default:
                 message.setText(BotMessages.DEFAULT.getText());
@@ -249,7 +255,41 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
                 new_message.setText("2 дня активированы!");
                 break;
             case REQUEST_PAYMENT_BUTTON:
-                new_message.setText("Заявка принята!");
+                User user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
+                System.out.println("достали пользователя "+user);
+                BigDecimal cash = user.getPersonalData().getLocalWallet();
+                System.out.println("cash="+cash);
+                List <Tasks> tasks = user.getTasks();
+                Tasks task =null;
+                System.out.println("проверяем наличие заявки");
+                if (tasks!=null&&tasks.size()>0){
+                    for (Tasks t : tasks){
+                        if (t.getStatus().equals(TaskStatus.OPEN)&&t.getType().equals(TaskType.PAY_BONUSES))
+                            task=t;
+                    }
+                }
+                int checkCash=-1;
+                if (cash!=null)
+                 checkCash = cash.compareTo(new BigDecimal("0.01"));
+                System.out.println("checkCash="+checkCash);
+                String string = "";
+                if (user.getPersonalData().getAdvcashWallet()==null) {
+                    System.out.println("Заявка не принята, не установлен кошелёк Advcash.");
+                    string = "Заявка не принята, не установлен кошелёк Advcash.";
+                } else if (checkCash==-1) {
+                    string = "Заявка не принята, не достаточно средств.";
+                    System.out.println(string);
+                }else if (task!=null) {
+                    string = " Вы уже подали заявку " + task.getDateTimeOpening();
+                    System.out.println(string);
+                }else {
+                    task = new Tasks(TaskType.PAY_BONUSES,user);
+                    dbService.addTask(user.getUserID(),task);
+                    string = "Заявка принята!";
+                    System.out.println(string);
+                }
+                System.out.println(string);
+                new_message.setText(string);
                 break;
             default:
                 new_message.setText("Что то пошло не так обратитесь в тех. поддрежку");
@@ -266,7 +306,7 @@ public class WebhookService extends TelegramWebhookBot implements TelegramServic
         if (textIncomingMessage.startsWith(CommandButtons.SET_REFER_COMMAND.getText())) {
             try {
                 Long userID = Long.parseLong(textIncomingMessage.substring(7));
-                dbService.changeParentUser(userID);
+               // dbService.changeParentUser(userID);
                 textReplyMessage = TextMessage.REFER_SETTED.getText();
             } catch (NumberFormatException e) {
                 e.printStackTrace();

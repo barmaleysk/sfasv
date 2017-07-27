@@ -236,7 +236,7 @@ public class MessageHandler {
         if (textIncomingMessage.startsWith(CommandButtons.SET_REFER_COMMAND.getText())) {
             try {
                 Long userID = Long.parseLong(textIncomingMessage.substring(7));
-                dbService.changeParentUser(userID);
+               // dbService.changeParentUser(userID);
                 textReplyMessage = TextMessage.REFER_SETTED.getText();
             } catch (NumberFormatException e) {
                 e.printStackTrace();

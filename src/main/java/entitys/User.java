@@ -35,30 +35,22 @@ public class User implements Serializable{
     private int level;
     private int rightKey;
     private int leftKey;
-
-    private String userName;
-    private String firstName;
-    private String LastName;
-    private int phoneNumber;
-    private String email;
-
     private String typeUser = "customer";
 
-    private LocalDateTime endDateOfSubscription;
-    private String VipConsultation;
+    @ManyToMany(mappedBy = "clients",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private List<Tasks> tasks;
 
-    @Column(scale = 2,precision = 10)
-    private BigDecimal localWallet;
-    private String advcashWallet;
+    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Services services;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private PersonalData personalData;
+
     @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<AdvcashTransaction> advcashTransactions;
-
     @ManyToMany(mappedBy = "childrenUsers",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<LocalTransaction> localTransactions;
 
     User() {}
-
-
 
     public User(long userID) {
         this.userID = userID;
@@ -66,10 +58,10 @@ public class User implements Serializable{
 
     public User(long userID, String userName, String firstName, String lastName, long chatID) {
         this.userID=userID;
-        this.userName =userName;
-        this.firstName=firstName;
-        this.LastName = lastName;
-        this.chatID =chatID;
+        getPersonalData().setUserNameTelegram(userName);
+        getPersonalData().setFirstName(firstName);
+        getPersonalData().setLastName(lastName);
+        this.chatID=chatID;
     }
 
     public long getUserID() {
@@ -108,46 +100,6 @@ public class User implements Serializable{
         this.leftKey = leftKey;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return LastName;
-    }
-
-    public void setLastName(String lastName) {
-        LastName = lastName;
-    }
-
-    public int getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(int phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getTypeUser() {
         return typeUser;
     }
@@ -156,63 +108,58 @@ public class User implements Serializable{
         this.typeUser = typeUser;
     }
 
-    public LocalDateTime getEndDateOfSubscription() {
-        return endDateOfSubscription;
+    public Services getServices() {
+        if (this.services==null)
+            this.services= new Services();
+        return services;
     }
 
-    public void setEndDateOfSubscription(LocalDateTime endDateOfSubscription) {
-        this.endDateOfSubscription = endDateOfSubscription;
+    public PersonalData getPersonalData() {
+        if (this.personalData==null)
+            this.personalData=new PersonalData();
+        return this.personalData;
     }
 
-
-
-
-    public BigDecimal getLocalWallet() {
-        return this.localWallet==null ? new BigDecimal("0.00") : this.localWallet;
+    public List<Tasks> getTasks() {
+        return this.tasks;
     }
 
-    public void setLocalWallet(BigDecimal localWallet) {
-        this.localWallet = localWallet;
-    }
-
-    public String getAdvcashWallet() {
-        return advcashWallet;
-    }
-
-    public void setAdvcashWallet(String advcashWallet) {
-        this.advcashWallet = advcashWallet;
-    }
-
-    public List<AdvcashTransaction> getAdvcashTransactions() {
-        return advcashTransactions;
-    }
-
-    public List<LocalTransaction> getLocalTransactions() {
-        return localTransactions;
-    }
-
-
-    public void addLocalTransactions(LocalTransaction localTransaction) {
-        if (this.localTransactions==null)
-            localTransactions= new ArrayList<>();
-        this.localTransactions.add(localTransaction);
-    }
-
-    public void addAcTransaction(AdvcashTransaction transaction){
-        if (advcashTransactions==null)
-            this.advcashTransactions=new ArrayList<>();
-        advcashTransactions.add(transaction);
+    public void setTask(Tasks task) {
+        if (this.tasks==null)
+            this.tasks=new ArrayList<>();
+        this.tasks.add(task);
     }
 
     @Override
     public String toString() {
-        return "Имя: "+getFirstName()
-                +"| Фамилия: "+getLastName()
-                +"| UserName: "+getUserName()
-                +"| UserID: "+getUserID()
-                +"| Тип: "+getTypeUser()
-                +"| конец подписки: "+endDateOfSubscription;
+        return " UserID: "+getUserID()
+                +"| Тип: "+getTypeUser();
     }
 
 
+    public void setEndDateOfSubscription(LocalDateTime endDateOfSubscription) {
+        Services services = getServices();
+        services.setEndDateOfSubscription(endDateOfSubscription);
+    }
+
+    public BigDecimal getLocalWallet() {
+        PersonalData personalData = getPersonalData();
+        return personalData.getLocalWallet();
+    }
+
+    public String getUserName() {
+        return getPersonalData().getUserNameTelegram();
+    }
+
+    public String getFirstName() {
+        return getPersonalData().getFirstName();
+    }
+
+    public String getAdvcashWallet() {
+        return getPersonalData().getAdvcashWallet();
+    }
+
+    public LocalDateTime getEndDateOfSubscription() {
+        return getServices().getEndDateOfSubscription();
+    }
 }

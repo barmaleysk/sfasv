@@ -25,12 +25,15 @@
         <class>entitys.AdvcashTransaction</class>
         <class>entitys.LocalTransaction</class>
         <class>entitys.LocalDateTimeConvereter</class>
+        <class>entitys.PersonalData</class>
+        <class>entitys.Services</class>
+        <class>entitys.Tasks</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/WebBot?useSSL=false&amp;useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC"/>
             <property name="javax.persistence.jdbc.user" value="WebBot"/>
             <property name="javax.persistence.jdbc.password" value="MegaP0kem0n"/>
-            <property name="javax.persistence.schema-generation.database.action" value="update"/>
+            <property name="javax.persistence.schema-generation.database.action" value="create"/>
         </properties>
     </persistence-unit>
 </persistence>
