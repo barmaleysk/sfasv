@@ -154,4 +154,16 @@ public class  MenuCreator {
         markupInline.setKeyboard(rowsInline);
         return markupInline;
     }
+
+    public static InlineKeyboardMarkup createInlineButton(CommandButtons commandButtons){
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        rowInline1.add(new InlineKeyboardButton()
+                .setText(commandButtons.getText())
+                .setCallbackData(commandButtons.getText()));
+        rowsInline.add(rowInline1);
+        markupInline.setKeyboard(rowsInline);
+        return markupInline;
+    }
 }

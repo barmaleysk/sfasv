@@ -20,6 +20,7 @@ public enum CommandButtons {
     UNLIMIT("VIP подписка"),
     PAY_BUTTOM("оплатить"),
     URL_FORM_FOR_AC("http://290193.msk-kvm.ru/redirectToAdvcash"),
+    TASK_PRIVATE_CHAT("запросить консультацию"),
     //info menu
     GENERAL_DESCRIPTION("О нас"),
     FAQ("FAQ"),

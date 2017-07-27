@@ -33,15 +33,17 @@ public class WebhookService extends TelegramWebhookBot  {
     private ReplyKeyboardMarkup settingsMenuMarkup;
     private ReplyKeyboardMarkup partnerMenuMarkup;
     private InlineKeyboardMarkup trialInlineButton;
+    private InlineKeyboardMarkup paymentsBonusButton;
 
     public WebhookService(DbService dbService) {
         this.dbService = dbService;
-        mainMenuMarkup = MenuCreator.createMainMenuMarkup();
-        subscripMenuMarkup = MenuCreator.createSubscripMenuMarkup();
-        infoMenuMarkup = MenuCreator.createInfoMenuMarkup();
-        settingsMenuMarkup = MenuCreator.createSettingsMenuMarkup();
-        partnerMenuMarkup = MenuCreator.createPartnersMenu();
-        trialInlineButton = MenuCreator.createTrialInlineButton();
+        this.mainMenuMarkup = MenuCreator.createMainMenuMarkup();
+        this.subscripMenuMarkup = MenuCreator.createSubscripMenuMarkup();
+        this.infoMenuMarkup = MenuCreator.createInfoMenuMarkup();
+        this.settingsMenuMarkup = MenuCreator.createSettingsMenuMarkup();
+        this.partnerMenuMarkup = MenuCreator.createPartnersMenu();
+        this.trialInlineButton = MenuCreator.createTrialInlineButton();
+        this.paymentsBonusButton = MenuCreator.createPaymentsBonusButton();
     }
 
     @Override
@@ -172,6 +174,17 @@ public class WebhookService extends TelegramWebhookBot  {
                     message.setReplyMarkup(trialInlineButton);
                 }
                 break;
+            case PRIVATE_CHAT:
+                User userPC = dbService.getUserFromDb(incomingMessage.getChatId());
+                if (userPC.getServices().getOnetimeConsultation()){
+                    message.setText("Оставьте заявку и вас пригласят в чат");
+                    message.setReplyMarkup(MenuCreator.createInlineButton(CommandButtons.TASK_PRIVATE_CHAT));
+                } else {
+                    message.setText("Кнопка запроса будет доступна после оплаты." +
+                            "\n Стоимость персональной консультации 6р,");
+                    message.setReplyMarkup(MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=oneTimeConsultation"));
+                }
+                break;
             case SETTINGS:
                 message.setText(BotMessages.SETTINGS_MENU.getText());
                 message.setReplyMarkup(settingsMenuMarkup);
@@ -227,7 +240,7 @@ public class WebhookService extends TelegramWebhookBot  {
                                 + "\n Баланс должен быть положительным."
                                 + "\n Зявки обрабатываются в конце недели.\n";
                 message.setText(string);
-                message.setReplyMarkup(MenuCreator.createPaymentsBonusButton());
+                message.setReplyMarkup(paymentsBonusButton);
                 break;
             default:
                 message.setText(BotMessages.DEFAULT.getText());

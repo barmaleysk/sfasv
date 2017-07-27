@@ -128,13 +128,6 @@ public class User implements Serializable{
         this.tasks.add(task);
     }
 
-    @Override
-    public String toString() {
-        return " UserID: "+getUserID()
-                +"| Тип: "+getTypeUser();
-    }
-
-
     public void setEndDateOfSubscription(LocalDateTime endDateOfSubscription) {
         Services services = getServices();
         services.setEndDateOfSubscription(endDateOfSubscription);
@@ -160,4 +153,13 @@ public class User implements Serializable{
     public LocalDateTime getEndDateOfSubscription() {
         return getServices().getEndDateOfSubscription();
     }
+
+    @Override
+    public String toString() {
+        return " UserID: "+getUserID()
+                +"| Тип: "+getTypeUser();
+    }
+
+
+
 }
