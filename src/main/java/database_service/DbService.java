@@ -121,14 +121,25 @@ public class DbService {
     }
 
 
-    public void addTask(long userID, Tasks task) {
+    public synchronized void addTask(long userID, Tasks task) {
         System.out.println("сохраняем tasks");
         EntityTransaction tr = em.getTransaction();
         tr.begin();
         User user = em.find(User.class,userID);
+        System.out.println("достали юзера"+user);
         user.setTask(task);
+        System.out.println("добавили task");
         tr.commit();
         System.out.println("tasks сохранен");
 
+    }
+
+    public synchronized List<User> getManagers(){
+        EntityTransaction tr = em.getTransaction();
+        TypedQuery<User> query = em.createNamedQuery("User.getManagers",User.class);
+        tr.begin();
+        List<User> users = query.getResultList();
+        tr.commit();
+        return users;
     }
 }

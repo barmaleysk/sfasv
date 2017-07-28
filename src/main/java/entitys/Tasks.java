@@ -1,6 +1,8 @@
 package entitys;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,21 +14,19 @@ public class Tasks implements Serializable {
     private long id;
     private String type;
     private String status;
-    @ManyToMany(fetch = FetchType.EAGER)
-    private List<User> clients;
-    @ManyToMany()
-    private List<User> menegers;
+    @ManyToMany(fetch = FetchType.EAGER) @Size(max = 2)
+    private List<User> users;
     private LocalDateTime dateTimeOpening;
     private LocalDateTime dateTimeEnding;
 
      Tasks() {
     }
 
-    public Tasks(String type, User client) {
+    public Tasks(String type, User user) {
         this.type = type;
         this.status = TaskStatus.OPEN;
-        this.clients = new ArrayList<>();
-        this.clients.add(client);
+        this.users = new ArrayList<>();
+        this.users.add(user);
         this.dateTimeOpening = LocalDateTime.now();
     }
 
@@ -43,11 +43,11 @@ public class Tasks implements Serializable {
     }
 
     public User getClient() {
-        return clients==null?null:clients.get(0);
+        return users==null?null:users.get(0);
     }
 
     public User getMeneger() {
-        return menegers==null?null:menegers.get(0);
+        return users==null||users.size()!=2?null:users.get(1);
     }
 
     public LocalDateTime getDateTimeOpening() {
@@ -63,9 +63,10 @@ public class Tasks implements Serializable {
     }
 
     public void setMeneger(User meneger) {
-         if (this.menegers==null)
-             this.menegers=new ArrayList<>();
-        this.menegers.add(meneger);
+        if (this.users!=null&&users.size()==1)
+            users.add(meneger);
+        else
+            System.out.println("Не смог добавить менеджера");
     }
 
     public void setDateTimeEnding(LocalDateTime dateTimeEnding) {

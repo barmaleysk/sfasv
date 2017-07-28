@@ -24,7 +24,9 @@ import java.util.List;
         @NamedQuery(name = "User.getAllChildren",
                 query = "SELECT u FROM User u WHERE u.leftKey>:lk AND u.rightKey<:rk AND u.level>:l AND u.level<:l+4"),
         @NamedQuery(name = "User.getUser",
-                query = "SELECT u FROM User u WHERE u.userID=:k")
+                query = "SELECT u FROM User u WHERE u.userID=:k"),
+        @NamedQuery(name = "User.getManagers",
+                query = "SELECT u FROM User u WHERE u.typeUser='manager'")
 })
 public class User implements Serializable{
     @Id
@@ -35,7 +37,7 @@ public class User implements Serializable{
     private int leftKey;
     private String typeUser = "customer";
 
-    @ManyToMany(mappedBy = "clients",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private List<Tasks> tasks;
 
     @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)

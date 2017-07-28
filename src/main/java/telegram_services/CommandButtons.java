@@ -27,7 +27,7 @@ public enum CommandButtons {
     HOW_TO_CHANGE_CURRENCY("Как обменять криптовалюту"),
     SUPPORT("Тех поддержка"),
     //settings menu
-    REQUISITES("Изменить платежные реквезиты"),
+    REQUISITES("настроить кошелек AdvCash"),
     SITE_ACCOUNT("Аккаунт для сайта"),
     //partners menu
     LOCAL_WALLET("мои бонусы"),
@@ -44,7 +44,9 @@ public enum CommandButtons {
     CHECK_SUBSRIPTIONS("/подписчики"),
     CHECK_TASKS_PAYMENT("/заявки на выплаты"),
     CHECK_PRIVATE_CHAT("/заявки на чат"),
-    SEND_SIGNAL("/сигнал")
+    SEND_SIGNAL("/сигнал"),
+    //user command
+    CHANGE_AC_WALLET("/acwallet ")
     ;
 
     public String getText() {

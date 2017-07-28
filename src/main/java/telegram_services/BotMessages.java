@@ -5,7 +5,7 @@ package telegram_services;
  */
 public enum  BotMessages {
     MAIN_MENU("Главное меню"),
-    SELECT_SUBSCRIPTION("Выберите вариант подписки:"),
+    SELECT_SUBSCRIPTION("Выберите УСЛУГУ:"),
     CHECK_SUBSCRIPTION("Ваша подписка истекает: "),
     FAQ("О «ПРОЕКТЕ»\n" +
             "1 Что представляет собой «Проект»?\n" +
@@ -61,6 +61,8 @@ public enum  BotMessages {
     TWO_MONTH("Стоимость подписки на 2 месяца = 7р"
             +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
     THREE_MONTH("Стоимость подписки на 3 месяца = 8р"
+            +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
+    UNLIMIT_SUBSCRIPTION("Стоимость безлимитной подписки = 10р"
             +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
     DEFAULT("Я пока не знаю что на это ответить"),
     SETTINGS_MENU("Меню настроек");
