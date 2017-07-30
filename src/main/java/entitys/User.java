@@ -26,7 +26,7 @@ import java.util.List;
         @NamedQuery(name = "User.getUser",
                 query = "SELECT u FROM User u WHERE u.userID=:k"),
         @NamedQuery(name = "User.getManagers",
-                query = "SELECT u FROM User u WHERE u.typeUser='manager'")
+                query = "SELECT u FROM User u WHERE u.typeUser='manager'"),
 })
 public class User implements Serializable{
     @Id
@@ -154,6 +154,21 @@ public class User implements Serializable{
 
     public LocalDateTime getEndDateOfSubscription() {
         return getServices().getEndDateOfSubscription();
+    }
+
+    public List<AdvcashTransaction> getAdvcashTransactions() {
+        return this.advcashTransactions;
+    }
+
+    public Tasks getCurrentTasks(String taskType){
+        Tasks task=null;
+        if (this.tasks!=null){
+            for (Tasks t : this.tasks){
+                if (!t.getStatus().equals(TaskStatus.CLOSE))
+                    task=t;
+            }
+        }
+        return task;
     }
 
     @Override

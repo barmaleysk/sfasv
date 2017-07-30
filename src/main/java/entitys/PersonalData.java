@@ -1,11 +1,10 @@
 package entitys;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class PersonalData implements Serializable {
@@ -19,6 +18,9 @@ public class PersonalData implements Serializable {
     private String firstName;
     private String LastName;
     private String advcashWallet;
+    @CollectionTable()
+    private List<Long> referalsForPrize;
+    private int countPrize=0;
     @Column(scale = 2,precision = 10)
     private BigDecimal localWallet;
 
@@ -99,5 +101,23 @@ public class PersonalData implements Serializable {
 
     public void setUserNameTelegram(String userNameTelegram) {
         this.userNameTelegram = userNameTelegram;
+    }
+
+    public List<Long> getReferalsForPrize() {
+        if (this.referalsForPrize ==null)
+            this.referalsForPrize =new ArrayList<>();
+        return referalsForPrize;
+    }
+
+    public void addReferalForPrize(long userId){
+        getReferalsForPrize().add(userId);
+    }
+
+    public int getCountPrize() {
+        return countPrize;
+    }
+
+    public void incrementCountPrize() {
+        this.countPrize++;
     }
 }

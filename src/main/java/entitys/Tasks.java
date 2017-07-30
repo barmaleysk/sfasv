@@ -72,4 +72,10 @@ public class Tasks implements Serializable {
     public void setDateTimeEnding(LocalDateTime dateTimeEnding) {
         this.dateTimeEnding = dateTimeEnding;
     }
+
+    @Override
+    public String toString() {
+        return "Id заявки:"+this.id+
+                "\nДата открытия: "+this.dateTimeOpening;
+    }
 }

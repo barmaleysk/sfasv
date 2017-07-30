@@ -48,6 +48,7 @@ public class  MenuCreator {
         keyboardRow3.add(new KeyboardButton(CommandButtons.CHECK_SUBSCRIPTION.getText()));
         KeyboardRow keyboardRow4 = new KeyboardRow();
         keyboardRow4.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
+        keyboardRow4.add(new KeyboardButton(CommandButtons.INVITE_TO_CHAT.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);

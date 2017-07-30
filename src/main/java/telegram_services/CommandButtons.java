@@ -6,14 +6,14 @@ package telegram_services;
 public enum CommandButtons {
     START("/start"),
     //main menu
-    OFORMIT_PODPISCU("Оформить подписку"),
+    OFORMIT_PODPISCU("Услуги"),
     INFO_BOT("Информация"),
     PARTNER_PROGRAM("Партнёрская программа"),
     SETTINGS("Параметры"),
     //subscripe menu
-    ONE_MONTH("1 месяц"),
-    TWO_MONTH("2 месяца"),
-    THREE_MONTH("3 месяца"),
+    ONE_MONTH("Подписка 1 месяц"),
+    TWO_MONTH("Подписка 2 месяца"),
+    THREE_MONTH("Подписка 3 месяца"),
     CHECK_SUBSCRIPTION("Проверить подписку"),
     BACK_IN_MAIN_MENU("<- Главное меню"),
     PRIVATE_CHAT("Аудит портфеля"),
@@ -21,6 +21,7 @@ public enum CommandButtons {
     PAY_BUTTOM("оплатить"),
     URL_FORM_FOR_AC("http://290193.msk-kvm.ru/redirectToAdvcash"),
     TASK_PRIVATE_CHAT("запросить консультацию"),
+    INVITE_TO_CHAT("Общий чат"),
     //info menu
     GENERAL_DESCRIPTION("О нас"),
     FAQ("FAQ"),
@@ -30,8 +31,9 @@ public enum CommandButtons {
     REQUISITES("настроить кошелек AdvCash"),
     SITE_ACCOUNT("Аккаунт для сайта"),
     //partners menu
-    LOCAL_WALLET("мои бонусы"),
+    LOCAL_WALLET("Мои бонусы"),
     REQUEST_PAYMENT_BUTTON("запросить выплату бонусов"),
+    REQUEST_PRIZE_BUTTON("выплата бонусов и премии"),
     INVITE_PARTNER("Пригласить"),
     CHECK_REFERALS("Посмотреть рефералов"),
     SET_REFER("Установить моего рефера"),

@@ -4,6 +4,7 @@ import entitys.Tasks;
 import entitys.User;
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,15 +113,6 @@ public class DbService {
         return user.getEndDateOfSubscription().toLocalDate();
     }
 
-    public synchronized  boolean wasSubscription(long userId){
-        boolean was = true;
-        LocalDate date = getEndOfSubscription(userId);
-        if (date==null)
-            was=false;
-        return was;
-    }
-
-
     public synchronized void addTask(long userID, Tasks task) {
         System.out.println("сохраняем tasks");
         EntityTransaction tr = em.getTransaction();
@@ -141,5 +133,19 @@ public class DbService {
         List<User> users = query.getResultList();
         tr.commit();
         return users;
+    }
+
+    public synchronized List<Long> getSubscribers(){
+        EntityTransaction tr = em.getTransaction();
+        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription>=:d")
+                .setParameter("d", LocalDateTime.now());
+        List<Long> usersId =null;
+       // tr.begin();
+        usersId = query.getResultList();
+        //tr.commit();
+        em.clear();
+        System.out.println("usersId:"+usersId);
+        System.out.println("usersId size="+usersId.size());
+        return usersId;
     }
 }

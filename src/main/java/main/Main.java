@@ -1,5 +1,6 @@
 package main;
 
+import configs.GlobalConfigs;
 import database_service.DbService;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -10,12 +11,7 @@ import telegram_services.WebhookService;
  * Created by Dfyz on 28.06.2017.
  */
 public class Main {
-    private static final int PORT = 443;
-    private static final String EXTERNALWEBHOOKURL = "https://31.148.99.14:" + PORT; // https://(xyz.)externaldomain.tld
-    private static final String INTERNALWEBHOOKURL = "https://31.148.99.14:" + PORT; // https://(xyz.)localip/domain(.tld)
-    private static final String pathToCertificatePublicKey = "./public_cert.pem"; //only for self-signed webhooks
-    private static final String pathToCertificateStore = "./keystore.jks"; //self-signed and non-self-signed.
-    private static final String certificateStorePassword = "megapokemon"; //password for your certificate-store
+
 
     public static void main(String[] args) throws Exception {
         DbService dbService = DbService.getInstance();
@@ -23,7 +19,7 @@ public class Main {
         ApiContextInitializer.init();
         WebhookService webhookService = new WebhookService(dbService);
         try {
-            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(pathToCertificateStore,certificateStorePassword,EXTERNALWEBHOOKURL,INTERNALWEBHOOKURL,pathToCertificatePublicKey);
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(GlobalConfigs.pathToCertificateStore,GlobalConfigs.certificateStorePassword,GlobalConfigs.EXTERNALWEBHOOKURL,GlobalConfigs.INTERNALWEBHOOKURL,GlobalConfigs.pathToCertificatePublicKey);
             telegramBotsApi.registerBot(webhookService);
             System.out.println("TelegramService запущен");
         } catch (TelegramApiRequestException e) {

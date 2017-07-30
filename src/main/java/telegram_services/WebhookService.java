@@ -1,5 +1,6 @@
 package telegram_services;
 
+import configs.GlobalConfigs;
 import database_service.DbService;
 import database_service.NoUserInDb;
 import entitys.TaskStatus;
@@ -7,6 +8,7 @@ import entitys.TaskType;
 import entitys.Tasks;
 import entitys.User;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
+import org.telegram.telegrambots.api.methods.send.SendInvoice;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
@@ -48,8 +50,8 @@ public class WebhookService extends TelegramWebhookBot  {
 
     @Override
     public BotApiMethod onWebhookUpdateReceived(Update update) {
-        //++count;
-        //System.out.println("reciv update"+count);
+
+
         if (update.hasCallbackQuery()) {
             //System.out.println("пришел CallbackQuery: " + update.getCallbackQuery());
             EditMessageText editMessageText = callBackContext(update.getCallbackQuery());
@@ -59,7 +61,7 @@ public class WebhookService extends TelegramWebhookBot  {
             SendMessage sendMessage;
             if (!dbService.dbHasUser(userId)){
                 sendMessage = startContext(update.getMessage());
-            }else if (update.getMessage().getText().startsWith("/")){
+            }else if (update.getMessage().getText().startsWith("/")&&!update.getMessage().getText().equals("/start")){
                 sendMessage = commandContext(update.getMessage());
             } else {
                 sendMessage = mainContext(update.getMessage());
@@ -84,7 +86,7 @@ public class WebhookService extends TelegramWebhookBot  {
         if (textOfInputMessage.equals("/start")) {
             dbService.addRootUser(newUser);
             System.out.println("в базу добавлен пользователь: " + newUser);
-            replyMessage.setText("Добро пожаловать, " + firstName + "!"
+            replyMessage.setText(firstName + ", рады приветствовать Вас в проекте New Wave, мы готовы предоставить, пожалуй, лучшие сигналы для торговли на криптовалютном рынке"
                     + "\nУ вас бесплатный тестовый период 2 дня, если вам всё понравилось, то купите пописку $_$");
             replyMessage.setReplyMarkup(mainMenuMarkup);
 
@@ -93,14 +95,14 @@ public class WebhookService extends TelegramWebhookBot  {
             Long parentuserID = Long.parseLong(stringID);
             try {
                 dbService.addChildrenUser(parentuserID, newUser);
-                replyMessage.setText("Добро пожаловать, " + firstName + "!"
+                replyMessage.setText(firstName +", рады приветствовать Вас в проекте New Wave, мы готовы предоставить, пожалуй, лучшие сигналы для торговли на криптовалютном рынке"
                         + "\nУ вас бесплатный тестовый период 2 дня, если вам всё понравилось, то купите пописку $_$");
                 replyMessage.setReplyMarkup(mainMenuMarkup);
                 System.out.println("В базу добавлен приглашённый пользователь: " + newUser);
             } catch (NoUserInDb noUserInDb) {
                 dbService.addRootUser(newUser);
                 System.out.println("Ошибка в id пригласителя: " + newUser);
-                replyMessage.setText("Добро пожаловать, " + firstName + "!"
+                replyMessage.setText( firstName + ", рады приветствовать Вас в проекте New Wave, мы готовы предоставить, пожалуй, лучшие сигналы для торговли на криптовалютном рынке"
                         + "\n Ошибка в id пригласителя, свяжитесь с тех поддержкой, и поробуйте добавить пригласителя вручную"
                         +"\nУ вас бесплатный тестовый период 2 дня, если вам всё понравилось, то купите пописку $_$");
                 replyMessage.setReplyMarkup(mainMenuMarkup);
@@ -114,7 +116,9 @@ public class WebhookService extends TelegramWebhookBot  {
 
     public SendMessage mainContext(Message incomingMessage) {
         String texOfMessage = incomingMessage.getText();
-        SendMessage message = new SendMessage().setChatId(incomingMessage.getChatId());
+        SendMessage message = new SendMessage()
+                .setChatId(incomingMessage.getChatId())
+                .enableMarkdown(true);
         CommandButtons button = CommandButtons.getTYPE(texOfMessage);
         switch (button) {
             case START:
@@ -179,7 +183,8 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case PRIVATE_CHAT:
                 User userPC = dbService.getUserFromDb(incomingMessage.getChatId());
-                if (userPC.getServices().getOnetimeConsultation()||userPC.getServices().getUnlimit()){
+                if (userPC.getServices().getOnetimeConsultation()
+                        ||userPC.getServices().getUnlimit()){
                     message.setText("Оставьте заявку и вас пригласят в чат");
                     message.setReplyMarkup(MenuCreator.createInlineButton(CommandButtons.TASK_PRIVATE_CHAT));
                 } else {
@@ -192,6 +197,9 @@ public class WebhookService extends TelegramWebhookBot  {
                 message.setText(BotMessages.UNLIMIT_SUBSCRIPTION.getText());
                 message.setReplyMarkup(
                         MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=unlimit"));
+                break;
+            case INVITE_TO_CHAT:
+                message.setText("тут будет ссылочка на чат");
                 break;
             case SETTINGS:
                 message.setText(BotMessages.SETTINGS_MENU.getText());
@@ -209,7 +217,7 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case INVITE_PARTNER:
                 message.setText("Чтобы пригласить участника, скопируйте и отправьте ему эту ссылку "
-                        + "\n https://t.me/Sl0wP0ke_Bot?start=" + incomingMessage.getChat().getId()
+                        + "\n https://t.me/TheNewWaveBot?start=" + incomingMessage.getChat().getId()
                         + "\n");
                 break;
             case CHECK_REFERALS:
@@ -226,16 +234,18 @@ public class WebhookService extends TelegramWebhookBot  {
                     String level2 = "";
                     String level3 = "";
                     for (User u : userList) {
-                        System.out.println(u);
                         if (parentLevel + 1 == u.getLevel()) {
-                            level1 = level1 + " " + u.getUserName() + "-" + u.getFirstName()+";\n";
+                            level1 = level1 + " " + u.getUserName() + "-" + u.getFirstName()+ "-";
+                            level1=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level1+"платил"+"\n":level1+"\n";
                         } else if (parentLevel + 2 == u.getLevel()) {
                             level2 = level2 + " " + u.getUserName() + "-" + u.getFirstName()+";\n";
+
                         } else {
                             level3 = level3 + " " + u.getUserName() + "-" + u.getFirstName()+"\n";
                         }
                     }
                     text = "Рефералы 1го уровня: "
+                            + "\n"+parentUser.getPersonalData().getReferalsForPrize().size() + " платили подписку"
                             + "\n " + level1
                             + "\nРефералы 2го уровня: "
                             + "\n" + level2
@@ -246,15 +256,27 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case LOCAL_WALLET:
                 User user = dbService.getUserFromDb(incomingMessage.getChat().getId());
-                BigDecimal cash = user.getLocalWallet();
-                String string = "На вашем счету: *"+cash +"*"
-                                +"\n\nОставьте заявку, чтобы вывести бонусы на ваш счет."
-                                + "\n Проверьте, правильно ли указан ваш кошелек(если нет, смените его в настройках)."
-                                + "\n Ваш Advcash:"+user.getAdvcashWallet()
-                                + "\n Баланс должен быть положительным."
-                                + "\n Зявки обрабатываются в конце недели.\n";
-                message.setText(string);
-                message.setReplyMarkup(paymentsBonusButton);
+                if (user.getPersonalData().getReferalsForPrize().size()>0&&user.getPersonalData().getReferalsForPrize().size()%10==0){
+                    BigDecimal cash = user.getLocalWallet();
+                    String string = "На вашем счету: *"+cash +"*"
+                            +"\n"+user.getPersonalData().getReferalsForPrize().size()+" приглашенных вами пользователей оплатили подписку и вам полагается премия 1000$"
+                            +"\n\nОставьте заявку, чтобы вывести бонусы  и получить премию на ваш счет."
+                            + "\n Проверьте, правильно ли указан ваш кошелек(если нет, смените его в настройках)."
+                            + "\n Ваш Advcash:"+user.getAdvcashWallet()
+                            + "\n Зявки обрабатываются в конце недели.\n";
+                    message.setText(string);
+                    message.setReplyMarkup(MenuCreator.createInlineButton(CommandButtons.REQUEST_PRIZE_BUTTON));
+                } else {
+                    BigDecimal cash = user.getLocalWallet();
+                    String string = "На вашем счету: *" + cash + "*"
+                            + "\n\nОставьте заявку, чтобы вывести бонусы на ваш счет."
+                            + "\n Проверьте, правильно ли указан ваш кошелек(если нет, смените его в настройках)."
+                            + "\n Ваш Advcash:" + user.getAdvcashWallet()
+                            + "\n Баланс должен быть положительным."
+                            + "\n Зявки обрабатываются в конце недели.\n";
+                    message.setText(string);
+                    message.setReplyMarkup(paymentsBonusButton);
+                }
                 break;
             default:
                 message.setText(BotMessages.DEFAULT.getText());
@@ -278,35 +300,72 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case REQUEST_PAYMENT_BUTTON:
                 User user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
-                System.out.println("достали пользователя "+user);
+                System.out.println("достали пользователя " + user);
                 BigDecimal cash = user.getPersonalData().getLocalWallet();
-                System.out.println("cash="+cash);
-                List <Tasks> tasks = user.getTasks();
-                Tasks task =null;
+                System.out.println("cash=" + cash);
+                List<Tasks> tasks = user.getTasks();
+                Tasks task = null;
                 System.out.println("проверяем наличие заявки");
-                if (tasks!=null&&tasks.size()>0){
-                    for (Tasks t : tasks){
-                        if (t.getStatus().equals(TaskStatus.OPEN)&&t.getType().equals(TaskType.PAY_BONUSES))
-                            task=t;
+                if (tasks != null && tasks.size() > 0) {
+                    for (Tasks t : tasks) {
+                        if (t.getStatus().equals(TaskStatus.OPEN) && t.getType().equals(TaskType.PAY_BONUSES))
+                            task = t;
                     }
                 }
-                int checkCash=-1;
-                if (cash!=null)
-                 checkCash = cash.compareTo(new BigDecimal("0.01"));
-                System.out.println("checkCash="+checkCash);
+                int checkCash = -1;
+                if (cash != null)
+                    checkCash = cash.compareTo(new BigDecimal("0.01"));
+                System.out.println("checkCash=" + checkCash);
                 String string = "";
-                if (user.getPersonalData().getAdvcashWallet()==null) {
+                if (user.getPersonalData().getAdvcashWallet() == null) {
                     System.out.println("Заявка не принята, не установлен кошелёк Advcash.");
                     string = "Заявка не принята, не установлен кошелёк Advcash.";
-                } else if (checkCash==-1) {
+                } else if (checkCash == -1) {
                     string = "Заявка не принята, не достаточно средств.";
                     System.out.println(string);
-                }else if (task!=null) {
+                } else if (task != null) {
                     string = " Вы уже подали заявку " + task.getDateTimeOpening();
                     System.out.println(string);
-                }else {
-                    task = new Tasks(TaskType.PAY_BONUSES,user);
-                    dbService.addTask(user.getUserID(),task);
+                } else {
+                    task = new Tasks(TaskType.PAY_BONUSES, user);
+                    dbService.addTask(user.getUserID(), task);
+                    string = "Заявка принята!";
+                    System.out.println(string);
+                }
+                System.out.println(string);
+                new_message.setText(string);
+                break;
+            case REQUEST_PRIZE_BUTTON:
+                user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
+                System.out.println("достали пользователя " + user);
+                cash = user.getPersonalData().getLocalWallet();
+                System.out.println("cash=" + cash);
+                tasks = user.getTasks();
+                task = null;
+                System.out.println("проверяем наличие заявки");
+                if (tasks != null && tasks.size() > 0) {
+                    for (Tasks t : tasks) {
+                        if (t.getStatus().equals(TaskStatus.OPEN) && t.getType().equals(TaskType.PAY_PRIZE))
+                            task = t;
+                    }
+                }
+                checkCash = -1;
+                if (cash != null)
+                    checkCash = cash.compareTo(new BigDecimal("0.01"));
+                System.out.println("checkCash=" + checkCash);
+                string = "";
+                if (user.getPersonalData().getAdvcashWallet() == null) {
+                    System.out.println("Заявка не принята, не установлен кошелёк Advcash.");
+                    string = "Заявка не принята, не установлен кошелёк Advcash.";
+                } else if (checkCash == -1) {
+                    string = "Заявка не принята, не достаточно средств.";
+                    System.out.println(string);
+                } else if (task != null) {
+                    string = " Вы уже подали заявку " + task.getDateTimeOpening();
+                    System.out.println(string);
+                } else {
+                    task = new Tasks(TaskType.PAY_BONUSES, user);
+                    dbService.addTask(user.getUserID(), task);
                     string = "Заявка принята!";
                     System.out.println(string);
                 }
@@ -315,29 +374,35 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case TASK_PRIVATE_CHAT:
                 user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
-                task = new Tasks(TaskType.PRIVATE_CHAT,user);
-                dbService.addTask(user.getUserID(),task);
-                List<User> managers = dbService.getManagers();
-                for (User manager : managers){
-                    SendMessage sendMessage = new SendMessage()
-                            .setChatId(manager.getChatID())
-                            .setText("Новая заявка на аудит портфеля:"
-                                    + "\nuserName: "+ user.getUserName()
-                                    + "\nuserId: "+user.getUserID()
-                                    + "\nВремя создания: "+ task.getDateTimeOpening());
-                    try {
-                        sendMessage(sendMessage);
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
+                task = user.getCurrentTasks(TaskType.PRIVATE_CHAT);
+                if (task != null) {
+                    new_message.setText("У вас уже открыта заявка на персональный чат.\n" + task);
+                } else {
+                    task = new Tasks(TaskType.PRIVATE_CHAT, user);
+                    dbService.addTask(user.getUserID(), task);
+                    List<User> managers = dbService.getManagers();
+                    for (User manager : managers) {
+                        SendMessage sendMessage = new SendMessage()
+                                .setChatId(manager.getChatID())
+                                .setText("Новая заявка на аудит портфеля:"
+                                        + "\nuserName: " + user.getUserName()
+                                        + "\nuserId: " + user.getUserID()
+                                        + "\nВремя создания: " + task.getDateTimeOpening());
+                        try {
+                            sendMessage(sendMessage);
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    new_message.setText("Запрос принят, ждите приглашения в чат");
                 }
-                new_message.setText("Запрос принят, ждите приглашения в чат");
                 break;
             default:
                 new_message.setText("Что то пошло не так обратитесь в тех. поддрежку");
                 break;
         }
         return new_message;
+
     }
 
 
@@ -347,7 +412,24 @@ public class WebhookService extends TelegramWebhookBot  {
                 .setText("Что-то пошло не так");
         String textIncomingMessage = incomingMessage.getText();
         if (textIncomingMessage.startsWith(CommandButtons.SEND_SIGNAL.getText())){
-          //  List<>
+            if(dbService.getUserFromDb(incomingMessage.getChat().getId()).getTypeUser().equals("manager")) {
+                List<Long> usersId = dbService.getSubscribers();
+                if (usersId != null && usersId.size() > 0) {
+                    for (Long uId : usersId) {
+                        SendMessage sendMessage = new SendMessage()
+                                .setChatId(uId)
+                                .setText(textIncomingMessage.substring(8));
+                        try {
+                            sendMessage(sendMessage);
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    replyMessage.setText("Сигнал отправлен " + usersId.size() + " пользователям");
+                }
+            } else{
+                replyMessage.setText(" у вас недостаточно прав для этой команды");
+            }
         }
         if(textIncomingMessage.startsWith(CommandButtons.CHANGE_AC_WALLET.getText())) {
             String wallet = textIncomingMessage.substring(10);
@@ -360,17 +442,17 @@ public class WebhookService extends TelegramWebhookBot  {
 
     @Override
     public String getBotUsername() {
-        return "Sl0wP0ke_Bot";
+        return GlobalConfigs.botname;
     }
 
     @Override
     public String getBotToken() {
-        return "443613733:AAFzuEjry6R_kMxZyB-pILvU4-YchwONs9M";
+        return GlobalConfigs.token;
     }
 
     @Override
     public String getBotPath() {
-        return "Sl0wP0ke_Bot";
+        return GlobalConfigs.botPath;
     }
 
 }
