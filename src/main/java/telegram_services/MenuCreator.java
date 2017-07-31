@@ -117,6 +117,20 @@ public class  MenuCreator {
         return keyboardMarkup;
     }
 
+    public static ReplyKeyboardMarkup createAdminMenuMarkup(){
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton(CommandButtons.CHECK_PRIVATE_CHAT.getText()));
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        keyboardRow2.add(new KeyboardButton(CommandButtons.CHECK_TASKS_PAYMENT.getText()));
+        keyboardRows.add(keyboardRow1);
+        keyboardRows.add(keyboardRow2);
+        keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setResizeKeyboard(true);
+        return keyboardMarkup;
+    }
+
 
     public static InlineKeyboardMarkup createTrialInlineButton(){
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
@@ -167,4 +181,6 @@ public class  MenuCreator {
         markupInline.setKeyboard(rowsInline);
         return markupInline;
     }
+
+
 }

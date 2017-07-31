@@ -19,7 +19,7 @@ public enum CommandButtons {
     PRIVATE_CHAT("Аудит портфеля"),
     UNLIMIT("VIP подписка"),
     PAY_BUTTOM("оплатить"),
-    URL_FORM_FOR_AC("http://290193.msk-kvm.ru/redirectToAdvcash"),
+    URL_FORM_FOR_AC("http://new-wave.io/redirectToAdvcash"),
     TASK_PRIVATE_CHAT("запросить консультацию"),
     INVITE_TO_CHAT("Общий чат"),
     //info menu
@@ -28,7 +28,7 @@ public enum CommandButtons {
     HOW_TO_CHANGE_CURRENCY("Как обменять криптовалюту"),
     SUPPORT("Тех поддержка"),
     //settings menu
-    REQUISITES("настроить кошелек AdvCash"),
+    REQUISITES("Настроить кошелек AdvCash"),
     SITE_ACCOUNT("Аккаунт для сайта"),
     //partners menu
     LOCAL_WALLET("Мои бонусы"),
@@ -42,7 +42,7 @@ public enum CommandButtons {
     //FAIL
     FAIL("Я пока не знаю что на это ответить"),
     //admin command
-    SET_MENEGERS_MENU("/управление"),
+    SET_MENEGERS_MENU("/admin"),
     CHECK_SUBSRIPTIONS("/подписчики"),
     CHECK_TASKS_PAYMENT("/заявки на выплаты"),
     CHECK_PRIVATE_CHAT("/заявки на чат"),

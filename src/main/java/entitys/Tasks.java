@@ -10,7 +10,7 @@ import java.util.List;
 
 @Entity
 public class Tasks implements Serializable {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String type;
     private String status;
@@ -75,7 +75,11 @@ public class Tasks implements Serializable {
 
     @Override
     public String toString() {
-        return "Id заявки:"+this.id+
-                "\nДата открытия: "+this.dateTimeOpening;
+        return "Id заявки: "+this.id
+                +"\nДата создания: "+this.dateTimeOpening
+                +"\nUserId: "+getClient().getUserID()
+                +"\nUserName: "+getClient().getPersonalData().getUserNameTelegram()
+                +"\nVIP: "+getClient().getServices().getUnlimit();
+
     }
 }

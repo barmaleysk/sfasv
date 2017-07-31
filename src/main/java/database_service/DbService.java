@@ -1,5 +1,6 @@
 package database_service;
 
+import entitys.TaskStatus;
 import entitys.Tasks;
 import entitys.User;
 import javax.persistence.*;
@@ -108,11 +109,6 @@ public class DbService {
         return usersList;
     }
 
-    public synchronized LocalDate getEndOfSubscription(long userId) {
-        User user = getUserFromDb(userId);
-        return user.getEndDateOfSubscription().toLocalDate();
-    }
-
     public synchronized void addTask(long userID, Tasks task) {
         System.out.println("сохраняем tasks");
         EntityTransaction tr = em.getTransaction();
@@ -147,5 +143,17 @@ public class DbService {
         System.out.println("usersId:"+usersId);
         System.out.println("usersId size="+usersId.size());
         return usersId;
+    }
+
+    public synchronized List<Tasks> getTasks(String status, String type){
+        List<Tasks> tasks;
+        EntityTransaction tr = em.getTransaction();
+        Query query = em.createQuery("SELECT t FROM Tasks t WHERE t.status=:s AND t.type=:v")
+                .setParameter("s", status)
+                .setParameter("v",type);
+        tr.begin();
+        tasks = query.getResultList();
+        tr.commit();
+        return tasks;
     }
 }

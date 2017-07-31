@@ -5,7 +5,7 @@ package telegram_services;
  */
 public enum  BotMessages {
     MAIN_MENU("Главное меню"),
-    SELECT_SUBSCRIPTION("Выберите УСЛУГУ:"),
+    SELECT_SUBSCRIPTION("Выберите услугу:"),
     CHECK_SUBSCRIPTION("Ваша подписка истекает: "),
     FAQ("*О «ПРОЕКТЕ»*\n" +
             "*1 Что представляет собой «New Wave»?*\n" +

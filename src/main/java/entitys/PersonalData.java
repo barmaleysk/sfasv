@@ -80,7 +80,7 @@ public class PersonalData implements Serializable {
     }
 
     public String getAdvcashWallet() {
-        return advcashWallet;
+        return this.advcashWallet;
     }
 
     public void setAdvcashWallet(String advcashWallet) {
@@ -91,9 +91,6 @@ public class PersonalData implements Serializable {
         return localWallet;
     }
 
-    public void setLocalWallet(BigDecimal localWallet) {
-        this.localWallet = localWallet;
-    }
 
     public String getUserNameTelegram() {
         return userNameTelegram;

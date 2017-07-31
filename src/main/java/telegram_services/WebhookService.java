@@ -8,7 +8,6 @@ import entitys.TaskType;
 import entitys.Tasks;
 import entitys.User;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
-import org.telegram.telegrambots.api.methods.send.SendInvoice;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
@@ -62,7 +61,7 @@ public class WebhookService extends TelegramWebhookBot  {
             if (!dbService.dbHasUser(userId)){
                 sendMessage = startContext(update.getMessage());
             }else if (update.getMessage().getText().startsWith("/")&&!update.getMessage().getText().equals("/start")){
-                sendMessage = commandContext(update.getMessage());
+                sendMessage = adminCommandContext(update.getMessage());
             } else {
                 sendMessage = mainContext(update.getMessage());
             }
@@ -208,8 +207,13 @@ public class WebhookService extends TelegramWebhookBot  {
             case REQUISITES:
                 String wallet = dbService.getUserFromDb(incomingMessage.getChat().getId())
                         .getPersonalData().getAdvcashWallet();
-                message.setText("id вашего кошелька Advcash="+wallet
+                System.out.println(wallet);
+                if (wallet!=null)
+                 message.setText("id вашего кошелька Advcash="+wallet
                         +"\n Чтобы сменить, отправьте: /acwallet id_кошелька");
+                else
+                    message.setText("У вас не установлен id кошелька Advcash"
+                            +"\n Чтобы установить, отправьте: /acwallet id_кошелька");
                 break;
             case PARTNER_PROGRAM:
                 message.setText(CommandButtons.PARTNER_PROGRAM.getText());
@@ -406,7 +410,7 @@ public class WebhookService extends TelegramWebhookBot  {
     }
 
 
-    public SendMessage commandContext(Message incomingMessage) {
+    public SendMessage adminCommandContext(Message incomingMessage) {
         SendMessage replyMessage = new SendMessage()
                 .setChatId(incomingMessage.getChatId())
                 .setText("Что-то пошло не так");
@@ -420,8 +424,9 @@ public class WebhookService extends TelegramWebhookBot  {
                                 .setChatId(uId)
                                 .setText(textIncomingMessage.substring(8));
                         try {
-                            sendMessage(sendMessage);
+                            sendApiMethod(sendMessage);
                         } catch (TelegramApiException e) {
+                            System.out.println("Не смог отправить сигнал "+uId);
                             e.printStackTrace();
                         }
                     }
@@ -430,12 +435,36 @@ public class WebhookService extends TelegramWebhookBot  {
             } else{
                 replyMessage.setText(" у вас недостаточно прав для этой команды");
             }
-        }
-        if(textIncomingMessage.startsWith(CommandButtons.CHANGE_AC_WALLET.getText())) {
+        } else if(textIncomingMessage.startsWith(CommandButtons.CHANGE_AC_WALLET.getText())) {
             String wallet = textIncomingMessage.substring(10);
             dbService.getUserFromDb(incomingMessage.getChat().getId())
                     .getPersonalData().setAdvcashWallet(wallet);
             replyMessage.setText("Кошелек id="+wallet+" установлен");
+        } else if(textIncomingMessage.equals(CommandButtons.CHECK_PRIVATE_CHAT.getText())){
+            List<Tasks> tasks = dbService.getTasks(TaskStatus.OPEN,TaskType.PRIVATE_CHAT);
+            if (tasks!=null&&tasks.size()>0){
+                StringBuilder stringBuilder = new StringBuilder();
+                for (Tasks t : tasks){
+                    stringBuilder.append(tasks).append("\n******\n");
+                }
+                replyMessage.setText(stringBuilder.toString());
+            } else {
+                replyMessage.setText("Заявок нет");
+            }
+        } else if(textIncomingMessage.equals(CommandButtons.CHECK_TASKS_PAYMENT.getText())){
+            List<Tasks> tasks = dbService.getTasks(TaskStatus.OPEN,TaskType.PAY_BONUSES);
+            if (tasks!=null&&tasks.size()>0){
+                StringBuilder stringBuilder = new StringBuilder();
+                for (Tasks t : tasks){
+                    stringBuilder.append(tasks).append("\n******\n");
+                }
+                replyMessage.setText(stringBuilder.toString());
+            } else {
+                replyMessage.setText("заявок нет");
+            }
+        } else if (textIncomingMessage.equals(CommandButtons.SET_MENEGERS_MENU.getText())){
+            replyMessage.setText("меню");
+            replyMessage.setReplyMarkup(MenuCreator.createAdminMenuMarkup());
         }
         return replyMessage;
     }
