@@ -52,10 +52,6 @@ public class User implements Serializable{
 
     User() {}
 
-    public User(long userID) {
-        this.userID = userID;
-    }
-
     public User(long userID, String userName, String firstName, String lastName, long chatID) {
         this.userID=userID;
         getPersonalData().setUserNameTelegram(userName);
@@ -70,10 +66,6 @@ public class User implements Serializable{
 
     public long getChatID() {
         return chatID;
-    }
-
-    public void setChatID(long chatID) {
-        this.chatID = chatID;
     }
 
     public int getLevel() {
@@ -136,8 +128,7 @@ public class User implements Serializable{
     }
 
     public BigDecimal getLocalWallet() {
-        PersonalData personalData = getPersonalData();
-        return personalData.getLocalWallet();
+        return  getPersonalData().getLocalWallet();
     }
 
     public String getUserName() {
@@ -152,10 +143,6 @@ public class User implements Serializable{
         return getPersonalData().getAdvcashWallet();
     }
 
-    public LocalDateTime getEndDateOfSubscription() {
-        return getServices().getEndDateOfSubscription();
-    }
-
     public List<AdvcashTransaction> getAdvcashTransactions() {
         return this.advcashTransactions;
     }
@@ -164,7 +151,7 @@ public class User implements Serializable{
         Tasks task=null;
         if (this.tasks!=null){
             for (Tasks t : this.tasks){
-                if (!t.getStatus().equals(TaskStatus.CLOSE))
+                if (!t.getStatus().equals(TaskStatus.CLOSE)&&t.getType().equals(taskType))
                     task=t;
             }
         }

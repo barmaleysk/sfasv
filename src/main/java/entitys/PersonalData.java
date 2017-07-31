@@ -27,42 +27,6 @@ public class PersonalData implements Serializable {
     public PersonalData() {
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public int getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(int phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getNickVK() {
-        return nickVK;
-    }
-
-    public void setNickVK(String nickVK) {
-        this.nickVK = nickVK;
-    }
-
-    public String getAccountCryptoCompare() {
-        return accountCryptoCompare;
-    }
-
-    public void setAccountCryptoCompare(String accountCryptoCompare) {
-        this.accountCryptoCompare = accountCryptoCompare;
-    }
-
     public String getFirstName() {
         return firstName;
     }
@@ -71,9 +35,6 @@ public class PersonalData implements Serializable {
         this.firstName = firstName;
     }
 
-    public String getLastName() {
-        return LastName;
-    }
 
     public void setLastName(String lastName) {
         LastName = lastName;

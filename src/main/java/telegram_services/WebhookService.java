@@ -205,15 +205,10 @@ public class WebhookService extends TelegramWebhookBot  {
                 message.setReplyMarkup(settingsMenuMarkup);
                 break;
             case REQUISITES:
-                String wallet = dbService.getUserFromDb(incomingMessage.getChat().getId())
-                        .getPersonalData().getAdvcashWallet();
-                System.out.println(wallet);
-                if (wallet!=null)
-                 message.setText("id вашего кошелька Advcash="+wallet
-                        +"\n Чтобы сменить, отправьте: /acwallet id_кошелька");
-                else
-                    message.setText("У вас не установлен id кошелька Advcash"
-                            +"\n Чтобы установить, отправьте: /acwallet id_кошелька");
+                String wallet = dbService.getUserFromDb(incomingMessage.getChat().getId()).getAdvcashWallet();
+                message.setText("id вашего кошелька Advcash="+wallet
+                            +"\nЧтобы сменить, отправьте:"
+                            +"\n/acwallet id_кошелька").enableMarkdown(false);
                 break;
             case PARTNER_PROGRAM:
                 message.setText(CommandButtons.PARTNER_PROGRAM.getText());
@@ -234,26 +229,28 @@ public class WebhookService extends TelegramWebhookBot  {
                     text = "У вас нет рефералов";
                 } else {
                     List<User> userList = dbService.getChildrenUsers(parentLevel, parentLeftKey, parentRightKey);
+
                     String level1 = "";
                     String level2 = "";
                     String level3 = "";
                     for (User u : userList) {
                         if (parentLevel + 1 == u.getLevel()) {
                             level1 = level1 + " " + u.getUserName() + "-" + u.getFirstName()+ "-";
-                            level1=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level1+"платил"+"\n":level1+"\n";
+                            level1=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level1+"+"+"\n":level1+"\n";
                         } else if (parentLevel + 2 == u.getLevel()) {
                             level2 = level2 + " " + u.getUserName() + "-" + u.getFirstName()+";\n";
-
+                            level2=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level1+"+"+"\n":level1+"\n";
                         } else {
                             level3 = level3 + " " + u.getUserName() + "-" + u.getFirstName()+"\n";
+                            level3=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level1+"+"+"\n":level1+"\n";
                         }
                     }
-                    text = "Рефералы 1го уровня: "
-                            + "\n"+parentUser.getPersonalData().getReferalsForPrize().size() + " платили подписку"
-                            + "\n " + level1
-                            + "\nРефералы 2го уровня: "
+                    text = "*Рефералы 1го уровня:* "
+                            + "\n_Количество оплативших подписку=_"+parentUser.getPersonalData().getReferalsForPrize().size()
+                            + "\n" + level1
+                            + "\n*Рефералы 2го уровня:* "
                             + "\n" + level2
-                            + "\nРефералы 3го уровня: "
+                            + "\n*Рефералы 3го уровня:* "
                             + "\n" + level3;
                 }
                 message.setText(text);
@@ -393,7 +390,7 @@ public class WebhookService extends TelegramWebhookBot  {
                                         + "\nuserId: " + user.getUserID()
                                         + "\nВремя создания: " + task.getDateTimeOpening());
                         try {
-                            sendMessage(sendMessage);
+                            sendApiMethod(sendMessage);
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
