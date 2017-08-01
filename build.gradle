@@ -21,9 +21,10 @@ jar {
     }
 }
 dependencies {
+    compileJava.options.encoding = 'UTF-8'
     compile group: 'org.telegram', name: 'telegrambots', version: '3.2'
     compile group: 'org.eclipse.persistence', name: 'eclipselink', version: '2.6.4'
     compile group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
-    compileJava.options.encoding = 'UTF-8'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
 
 }

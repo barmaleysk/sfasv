@@ -87,11 +87,13 @@ public class  MenuCreator {
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(CommandButtons.SITE_ACCOUNT.getText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
-        keyboardRow3.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
-       // keyboardRow2.add(new KeyboardButton(CommandButtons.ADD_REFERAL.getText()));
+        keyboardRow3.add(new KeyboardButton(CommandButtons.MY_DATA.getText()));
+        KeyboardRow keyboardRow4 = new KeyboardRow();
+        keyboardRow4.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
+        keyboardRows.add(keyboardRow4);
         keyboardMarkup.setKeyboard(keyboardRows);
         keyboardMarkup.setResizeKeyboard(true);
         return keyboardMarkup;
@@ -130,7 +132,6 @@ public class  MenuCreator {
         keyboardMarkup.setResizeKeyboard(true);
         return keyboardMarkup;
     }
-
 
     public static InlineKeyboardMarkup createTrialInlineButton(){
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();

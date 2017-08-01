@@ -3,6 +3,8 @@ package database_service;
 import entitys.TaskStatus;
 import entitys.Tasks;
 import entitys.User;
+import org.apache.log4j.Logger;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +15,7 @@ import java.util.List;
  * Created by kuteynikov on 29.06.2017.
  */
 public class DbService {
+    private static final Logger log = Logger.getLogger(DbService.class);
     private static DbService dbService;
     private EntityManager em;
     private DbService() {
@@ -23,13 +26,6 @@ public class DbService {
         if (dbService==null)
             dbService=new DbService();
         return dbService;
-    }
-
-    public synchronized void updateUser(User user){
-        EntityTransaction transaction = em.getTransaction();
-        transaction.begin();
-        em.persist(user);
-        transaction.commit();
     }
 
     public synchronized void addRootUser(User user){
@@ -54,8 +50,8 @@ public class DbService {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         User userFromDb = em.find(User.class,userId);
-        transaction.commit();
         em.refresh(userFromDb);
+        transaction.commit();
         return userFromDb;
     }
 
@@ -132,9 +128,9 @@ public class DbService {
     }
 
     public synchronized List<Long> getSubscribers(){
-        EntityTransaction tr = em.getTransaction();
-        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription>=:d")
-                .setParameter("d", LocalDateTime.now());
+        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription>=:d AND s.unlimitSubscription=:b")
+                .setParameter("d", LocalDateTime.now())
+                .setParameter("b",true);
         List<Long> usersId =null;
        // tr.begin();
         usersId = query.getResultList();
@@ -155,5 +151,25 @@ public class DbService {
         tasks = query.getResultList();
         tr.commit();
         return tasks;
+    }
+
+    public void updatePersonalData(String firstName, String lastName, String userName, Long Id) {
+        EntityTransaction tr = em.getTransaction();
+        tr.begin();
+        User user = em.find(User.class,Id);
+        user.getPersonalData().setFirstName(firstName);
+        user.getPersonalData().setLastName(lastName);
+        user.getPersonalData().setUserNameTelegram(userName);
+        tr.commit();
+    }
+
+    public synchronized List<Long> getUnSubscriptionUsers(){
+        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription<=:d AND s.unlimitSubscription=:b ")
+                .setParameter("d",LocalDateTime.now())
+                .setParameter("b",false);
+        List<Long> usersId = query.getResultList();
+        em.clear();
+        System.out.println("usersId:" +usersId);
+        return usersId;
     }
 }

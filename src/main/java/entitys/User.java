@@ -160,8 +160,7 @@ public class User implements Serializable{
 
     @Override
     public String toString() {
-        return " UserID: "+getUserID()
-                +"| Тип: "+getTypeUser();
+        return " UserID: "+getUserID()+" "+getPersonalData().getUserNameTelegram()+ " "+getPersonalData().getFirstName();
     }
 
 

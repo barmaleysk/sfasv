@@ -35,9 +35,12 @@ public class PersonalData implements Serializable {
         this.firstName = firstName;
     }
 
-
     public void setLastName(String lastName) {
         LastName = lastName;
+    }
+
+    public String getLastName() {
+        return LastName;
     }
 
     public String getAdvcashWallet() {
