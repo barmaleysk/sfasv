@@ -9,6 +9,8 @@ import entitys.Tasks;
 import entitys.User;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
+import org.telegram.telegrambots.api.methods.groupadministration.KickChatMember;
+import org.telegram.telegrambots.api.methods.groupadministration.UnbanChatMember;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
@@ -53,17 +55,13 @@ public class WebhookService extends TelegramWebhookBot  {
 
     @Override
     public BotApiMethod onWebhookUpdateReceived(Update update) {
-        System.out.println(update.getMessage().getText());
         if (update.hasCallbackQuery()) {
             //System.out.println("пришел CallbackQuery: " + update.getCallbackQuery());
             EditMessageText editMessageText = callBackContext(update.getCallbackQuery());
             return editMessageText;
         } else if(update.getMessage().getChat().isSuperGroupChat()){
             System.out.println("сообщение из группового чата id="+update.getMessage().getChatId());
-            if (update.getMessage().getText().equals("test"))
-             return new SendMessage(update.getMessage().getChatId(),"трололо");
-            else
-                return null;
+            return PrivateGroupContext(update.getMessage());
         } else if (update.hasMessage()&update.getMessage().hasText()){
             long userId = update.getMessage().getChat().getId();
             SendMessage sendMessage;
@@ -210,7 +208,18 @@ public class WebhookService extends TelegramWebhookBot  {
                         MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=unlimit"));
                 break;
             case INVITE_TO_CHAT:
-                message.setText("тут будет ссылочка на чат");
+                user = dbService.getUserFromDb(incomingMessage.getChatId());
+                if (user.getServices().getEndDateOfSubscription().toLocalDate().isAfter(LocalDate.now())||user.getServices().getUnlimit()) {
+                    UnbanChatMember unbanChatMember = new UnbanChatMember(-1001132133431l,incomingMessage.getChatId().intValue());
+                    try {
+                        sendApiMethod(unbanChatMember);
+                    } catch (TelegramApiException e) {
+                        log.error("Не смог разбнить юзера"+user+" в MainChat New Waveе");
+                        log.trace(e);
+                    }
+                    message.setText("Ссылка на групповой чат: \nhttps://t.me/joinchat/DqG8xUN6_De-fVQ6HXsm4w").enableMarkdown(false);
+                }else
+                    message.setText("Чтобы получить ссылку на групповой чат купите подписку. \n Участники у которых закончилась подписка удаляются из чата");
                 break;
             case SETTINGS:
                 message.setText(BotMessages.SETTINGS_MENU.getText());
@@ -425,7 +434,6 @@ public class WebhookService extends TelegramWebhookBot  {
 
     }
 
-
     public SendMessage adminCommandContext(Message incomingMessage) {
         SendMessage replyMessage = new SendMessage()
                 .setChatId(incomingMessage.getChatId())
@@ -485,12 +493,22 @@ public class WebhookService extends TelegramWebhookBot  {
         return replyMessage;
     }
 
-    public void sendTimer(SendMessage sendMessage){
-        try {
-            sendApiMethod(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+    private BotApiMethod PrivateGroupContext(Message incomingMessage) {
+        String texOfMessage = incomingMessage.getText();
+        CommandButtons button = CommandButtons.getTYPE(texOfMessage);
+        SendMessage sendMessage =null;
+        switch (button){
+            case END_TASK:
+                KickChatMember kick = new KickChatMember(incomingMessage.getChatId(),301363342);
+                try {
+                    sendApiMethod(kick);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+                sendMessage = new SendMessage(incomingMessage.getChatId(),"заявка закрыта");
+                break;
         }
+        return sendMessage;
     }
 
 

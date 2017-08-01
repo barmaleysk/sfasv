@@ -30,7 +30,7 @@ public enum CommandButtons {
     //settings menu
     REQUISITES("Настроить кошелек AdvCash"),
     SITE_ACCOUNT("Аккаунт для сайта"),
-    MY_DATA("мои данные"),
+    MY_DATA("Мои данные"),
     //partners menu
     LOCAL_WALLET("Мои бонусы"),
     REQUEST_PAYMENT_BUTTON("запросить выплату бонусов"),
@@ -48,6 +48,9 @@ public enum CommandButtons {
     CHECK_TASKS_PAYMENT("/заявки на выплаты"),
     CHECK_PRIVATE_CHAT("/заявки на чат"),
     SEND_SIGNAL("/сигнал"),
+    //групповой чат
+    END_TASK("/endtask"),
+
     //user command
     CHANGE_AC_WALLET("/acwallet ")
     ;

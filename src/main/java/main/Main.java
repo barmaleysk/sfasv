@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
-import telegram_services.Taimer;
+import telegram_services.MyTimer;
 import telegram_services.WebhookService;
 
 /**
@@ -19,7 +19,7 @@ public class Main {
         System.out.println("DbService запущен");
         ApiContextInitializer.init();
         WebhookService webhookService = new WebhookService();
-        Taimer taimer = new Taimer(webhookService);
+        MyTimer taimer = new MyTimer(webhookService);
         //taimer.start();
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(GlobalConfigs.pathToCertificateStore,GlobalConfigs.certificateStorePassword,GlobalConfigs.EXTERNALWEBHOOKURL,GlobalConfigs.INTERNALWEBHOOKURL,GlobalConfigs.pathToCertificatePublicKey);
