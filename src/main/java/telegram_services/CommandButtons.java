@@ -52,8 +52,8 @@ public enum CommandButtons {
     END_TASK("/endtask"),
 
     //user command
-    CHANGE_AC_WALLET("/acwallet ")
-    ;
+    CHANGE_AC_WALLET("/acwallet "),
+    CLOSE_TASK("Закрыть заявку");
 
     public String getText() {
         return s;

@@ -1,5 +1,7 @@
 package entitys;
 
+import org.apache.log4j.Logger;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -29,6 +31,8 @@ import java.util.List;
                 query = "SELECT u FROM User u WHERE u.typeUser='manager'"),
 })
 public class User implements Serializable{
+    @Transient
+    private static final Logger log = Logger.getLogger(User.class);
     @Id
     private  long userID;
     private long chatID;
@@ -164,5 +168,11 @@ public class User implements Serializable{
     }
 
 
-
+    public void addLocalTransactions(LocalTransaction localTransactions) {
+        if (this.localTransactions==null){
+            this.localTransactions=new ArrayList<>();
+            log.error("попытка при выплате  добавить локальную транзакцию для юзера "+this.userID+", странно но если не было транзакций пользователь не мог заказать выплату бонусов");
+        }
+        this.localTransactions.add(localTransactions);
+    }
 }

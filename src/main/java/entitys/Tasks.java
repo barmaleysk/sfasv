@@ -1,5 +1,7 @@
 package entitys;
 
+import org.apache.log4j.Logger;
+
 import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
@@ -10,6 +12,8 @@ import java.util.List;
 
 @Entity
 public class Tasks implements Serializable {
+    @Transient
+    private static final Logger log = Logger.getLogger(Tasks.class);
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String type;
@@ -66,7 +70,7 @@ public class Tasks implements Serializable {
         if (this.users!=null&&users.size()==1)
             users.add(meneger);
         else
-            System.out.println("Не смог добавить менеджера");
+            log.error("Не смог добавить менеджера в task="+this.id);
     }
 
     public void setDateTimeEnding(LocalDateTime dateTimeEnding) {

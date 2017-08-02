@@ -1,6 +1,7 @@
 package telegram_services;
 
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -13,7 +14,7 @@ import java.util.List;
  * Created by kuteynikov on 14.07.2017.
  */
 public class  MenuCreator {
-    public static ReplyKeyboardMarkup createMainMenuMarkup(){
+    public synchronized static ReplyKeyboardMarkup createMainMenuMarkup(){
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
@@ -34,7 +35,7 @@ public class  MenuCreator {
         return keyboardMarkup;
     }
 
-    public static ReplyKeyboardMarkup createSubscripMenuMarkup() {
+    public synchronized static ReplyKeyboardMarkup createSubscripMenuMarkup() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
@@ -59,7 +60,7 @@ public class  MenuCreator {
         return keyboardMarkup;
     }
 
-    public static ReplyKeyboardMarkup createInfoMenuMarkup(){
+    public  synchronized static ReplyKeyboardMarkup createInfoMenuMarkup(){
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
@@ -79,7 +80,7 @@ public class  MenuCreator {
         return keyboardMarkup;
     }
 
-    public static ReplyKeyboardMarkup createSettingsMenuMarkup() {
+    public synchronized static ReplyKeyboardMarkup createSettingsMenuMarkup() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
@@ -99,7 +100,7 @@ public class  MenuCreator {
         return keyboardMarkup;
     }
 
-    public static ReplyKeyboardMarkup createPartnersMenu(){
+    public synchronized static ReplyKeyboardMarkup createPartnersMenu(){
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
@@ -119,7 +120,7 @@ public class  MenuCreator {
         return keyboardMarkup;
     }
 
-    public static ReplyKeyboardMarkup createAdminMenuMarkup(){
+    public synchronized static ReplyKeyboardMarkup createAdminMenuMarkup(){
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
@@ -133,7 +134,7 @@ public class  MenuCreator {
         return keyboardMarkup;
     }
 
-    public static InlineKeyboardMarkup createTrialInlineButton(){
+    public synchronized static InlineKeyboardMarkup createTrialInlineButton(){
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
@@ -147,7 +148,7 @@ public class  MenuCreator {
         return markupInline;
     }
 
-    public static InlineKeyboardMarkup createPayButton(String parameters){
+    public synchronized static InlineKeyboardMarkup createPayButton(String parameters){
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
@@ -159,7 +160,7 @@ public class  MenuCreator {
         return markupInline;
     }
 
-    public static InlineKeyboardMarkup createPaymentsBonusButton(){
+    public synchronized static InlineKeyboardMarkup createPaymentsBonusButton(){
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
@@ -171,7 +172,7 @@ public class  MenuCreator {
         return markupInline;
     }
 
-    public static InlineKeyboardMarkup createInlineButton(CommandButtons commandButtons){
+    public synchronized static InlineKeyboardMarkup createInlineButton(CommandButtons commandButtons){
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
@@ -184,4 +185,15 @@ public class  MenuCreator {
     }
 
 
+    public synchronized static InlineKeyboardMarkup createCloseTaskButton(long idTask) {
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        rowInline1.add(new InlineKeyboardButton()
+                .setText(CommandButtons.CLOSE_TASK.getText())
+                .setCallbackData(CommandButtons.CLOSE_TASK.getText()+idTask));
+        rowsInline.add(rowInline1);
+        markupInline.setKeyboard(rowsInline);
+        return markupInline;
+    }
 }

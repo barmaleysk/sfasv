@@ -1,11 +1,13 @@
 package database_service;
 
+import entitys.LocalTransaction;
 import entitys.TaskStatus;
 import entitys.Tasks;
 import entitys.User;
 import org.apache.log4j.Logger;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -171,5 +173,35 @@ public class DbService {
         em.clear();
         System.out.println("usersId:" +usersId);
         return usersId;
+    }
+
+    public Tasks closeTask(Long idTask, Long mangerId) throws NoTaskInDb, NoUserInDb {
+        EntityTransaction tr = em.getTransaction();
+        tr.begin();
+        Tasks task = em.find(Tasks.class,idTask);
+        User manager = em.find(User.class,mangerId);
+        User client = em.find(User.class,task.getClient().getUserID());
+        if (task==null)
+            throw new NoTaskInDb();
+        else if (manager==null)
+            throw new NoUserInDb();
+        else {
+            LocalTransaction localTransaction = new LocalTransaction(
+                    LocalDateTime.now(),
+                    task.getClient().getPersonalData().getLocalWallet(),
+                    client
+            );
+            client.addLocalTransactions(localTransaction);
+            client.getPersonalData().setLocalWallet(new BigDecimal("0.00"));
+            task.setStatus(TaskStatus.CLOSE);
+            if(task.getClient().getUserID()!=manager.getUserID())
+               task.setMeneger(manager);
+            else
+                log.error("Ошибка при закрытии заявки UserId менеджера и клиента одинаковы="+mangerId);
+            task.setDateTimeEnding(LocalDateTime.now());
+        }
+        tr.commit();
+        log.info("выполнен вывод средств для "+client);
+        return task;
     }
 }

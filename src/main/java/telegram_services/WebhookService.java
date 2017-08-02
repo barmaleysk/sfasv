@@ -2,6 +2,7 @@ package telegram_services;
 
 import configs.GlobalConfigs;
 import database_service.DbService;
+import database_service.NoTaskInDb;
 import database_service.NoUserInDb;
 import entitys.TaskStatus;
 import entitys.TaskType;
@@ -50,8 +51,6 @@ public class WebhookService extends TelegramWebhookBot  {
         this.trialInlineButton = MenuCreator.createTrialInlineButton();
         this.paymentsBonusButton = MenuCreator.createPaymentsBonusButton();
     }
-
-
 
     @Override
     public BotApiMethod onWebhookUpdateReceived(Update update) {
@@ -198,7 +197,7 @@ public class WebhookService extends TelegramWebhookBot  {
                     message.setReplyMarkup(MenuCreator.createInlineButton(CommandButtons.TASK_PRIVATE_CHAT));
                 } else {
                     message.setText("Кнопка запроса будет доступна после оплаты." +
-                            "\n Стоимость персональной консультации 6р,");
+                            "\n Стоимость персональной консультации 0.35,");
                     message.setReplyMarkup(MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=oneTimeConsultation"));
                 }
                 break;
@@ -292,7 +291,9 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case LOCAL_WALLET:
                  user = dbService.getUserFromDb(incomingMessage.getChat().getId());
-                if (user.getPersonalData().getReferalsForPrize().size()>0&&user.getPersonalData().getReferalsForPrize().size()%10>user.getPersonalData().getCountPrize()){
+                if (user.getPersonalData().getReferalsForPrize().size()>0
+                        &&user.getPersonalData().getReferalsForPrize().size()%10==0
+                        &&user.getPersonalData().getReferalsForPrize().size()/10>user.getPersonalData().getCountPrize()){
                     BigDecimal cash = user.getLocalWallet();
                     String string = "На вашем счету: *"+cash +"*"
                             +"\n"+user.getPersonalData().getReferalsForPrize().size()+" приглашенных вами пользователей оплатили подписку и вам полагается премия 1000$"
@@ -321,126 +322,158 @@ public class WebhookService extends TelegramWebhookBot  {
     }
 
     public EditMessageText callBackContext(CallbackQuery callbackQuery) {
-        String dataFromQuery = callbackQuery.getData();
-        CommandButtons button = CommandButtons.getTYPE(dataFromQuery);
+        Long chatId = callbackQuery.getMessage().getChatId();
+        //готовим сообщение для отправки
         EditMessageText new_message = new EditMessageText()
-                .setChatId(callbackQuery.getMessage().getChatId())
+                .setChatId(chatId)
                 .setMessageId(callbackQuery.getMessage().getMessageId());
-        switch (button) {
-            case REQUEST_PAYMENT_BUTTON:
-                User user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
-                System.out.println("достали пользователя " + user);
-                BigDecimal cash = user.getPersonalData().getLocalWallet();
-                System.out.println("cash=" + cash);
-                List<Tasks> tasks = user.getTasks();
-                Tasks task = null;
-                System.out.println("проверяем наличие заявки");
-                if (tasks != null && tasks.size() > 0) {
-                    for (Tasks t : tasks) {
-                        if (t.getStatus().equals(TaskStatus.OPEN) && t.getType().equals(TaskType.PAY_BONUSES))
-                            task = t;
-                    }
-                }
-                int checkCash = -1;
-                if (cash != null)
-                    checkCash = cash.compareTo(new BigDecimal("0.01"));
-                System.out.println("checkCash=" + checkCash);
-                String string = "";
-                if (user.getPersonalData().getAdvcashWallet() == null) {
-                    System.out.println("Заявка не принята, не установлен кошелёк Advcash.");
-                    string = "Заявка не принята, не установлен кошелёк Advcash.";
-                } else if (checkCash == -1) {
-                    string = "Заявка не принята, не достаточно средств.";
-                    System.out.println(string);
-                } else if (task != null) {
-                    string = " Вы уже подали заявку " + task.getDateTimeOpening();
-                    System.out.println(string);
-                } else {
-                    task = new Tasks(TaskType.PAY_BONUSES, user);
-                    dbService.addTask(user.getUserID(), task);
-                    string = "Заявка принята!";
-                    System.out.println(string);
-                }
-                System.out.println(string);
-                new_message.setText(string);
-                break;
-            case REQUEST_PRIZE_BUTTON:
-                user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
-                System.out.println("достали пользователя " + user);
-                cash = user.getPersonalData().getLocalWallet();
-                System.out.println("cash=" + cash);
-                tasks = user.getTasks();
-                task = null;
-                System.out.println("проверяем наличие заявки");
-                if (tasks != null && tasks.size() > 0) {
-                    for (Tasks t : tasks) {
-                        if (t.getStatus().equals(TaskStatus.OPEN) && t.getType().equals(TaskType.PAY_PRIZE))
-                            task = t;
-                    }
-                }
-                checkCash = -1;
-                if (cash != null)
-                    checkCash = cash.compareTo(new BigDecimal("0.01"));
-                System.out.println("checkCash=" + checkCash);
-                string = "";
-                if (user.getPersonalData().getAdvcashWallet() == null) {
-                    System.out.println("Заявка не принята, не установлен кошелёк Advcash.");
-                    string = "Заявка не принята, не установлен кошелёк Advcash.";
-                } else if (checkCash == -1) {
-                    string = "Заявка не принята, не достаточно средств.";
-                    System.out.println(string);
-                } else if (task != null) {
-                    string = " Вы уже подали заявку " + task.getDateTimeOpening();
-                    System.out.println(string);
-                } else {
-                    task = new Tasks(TaskType.PAY_BONUSES, user);
-                    dbService.addTask(user.getUserID(), task);
-                    string = "Заявка принята!";
-                    System.out.println(string);
-                }
-                System.out.println(string);
-                new_message.setText(string);
-                break;
-            case TASK_PRIVATE_CHAT:
-                user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
-                task = user.getCurrentTasks(TaskType.PRIVATE_CHAT);
-                if (task != null) {
-                    new_message.setText("У вас уже открыта заявка на персональный чат.\n" + task);
-                } else {
-                    task = new Tasks(TaskType.PRIVATE_CHAT, user);
-                    dbService.addTask(user.getUserID(), task);
-                    List<User> managers = dbService.getManagers();
-                    for (User manager : managers) {
-                        SendMessage sendMessage = new SendMessage()
-                                .setChatId(manager.getChatID())
-                                .setText("Новая заявка на аудит портфеля:"
-                                        + "\nuserName: " + user.getUserName()
-                                        + "\nuserId: " + user.getUserID()
-                                        + "\nВремя создания: " + task.getDateTimeOpening());
-                        try {
-                            sendApiMethod(sendMessage);
-                        } catch (TelegramApiException e) {
-                            e.printStackTrace();
+        String dataFromQuery = callbackQuery.getData();
+        //сначала ветвление для данных с параметрами
+        //закрыть заявку
+        if (dataFromQuery.startsWith(CommandButtons.CLOSE_TASK.getText())){
+            try {
+                Long idTask = Long.parseLong(dataFromQuery.substring(14));
+                Tasks task = dbService.closeTask(idTask,chatId);
+                String s = task.getType().equals(TaskType.PAY_BONUSES)?"выплата бонусов":"";
+                String textToUserMessage = "Выполнена ваша заявка:" +
+                        "\nid: "+idTask
+                        +"\nТип: "+s;
+                SendMessage messageToUser = new SendMessage(task.getClient().getChatID(),textToUserMessage);
+                sendApiMethod(messageToUser);
+                new_message.setText("Заявка "+task.getId()+" закрыта");
+            }catch (NumberFormatException e){
+                log.error("ошибка при закрытии заявки, не корректный номер");
+                new_message.setText("некорректный id  заявки");
+            } catch (NoTaskInDb noTaskInDb) {
+                log.error("ошибка при закрытии заявки, в базе нет такой заявки ");
+                new_message.setText("в базе нет такой заявки");
+            } catch (NoUserInDb noUserInDb) {
+                log.error("ошибка при закрытии заявки, нет юзера-менеджера с id="+chatId);
+                new_message.setText("Вашего userId нет в базе обратитесь в техподдержку");
+            } catch (TelegramApiException e) {
+                log.error("Не смог отправить сообщение о закрытии заявки");
+                new_message.setText("Заявка закрыта, но не отправлено уведомление пользователю");
+                log.trace(e);
+            }
+        }        //данные без параметров
+        else {
+            CommandButtons button = CommandButtons.getTYPE(dataFromQuery);
+            switch (button) {
+                case REQUEST_PAYMENT_BUTTON:
+                    User user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
+                    System.out.println("достали пользователя " + user);
+                    BigDecimal cash = user.getPersonalData().getLocalWallet();
+                    System.out.println("cash=" + cash);
+                    List<Tasks> tasks = user.getTasks();
+                    Tasks task = null;
+                    System.out.println("проверяем наличие заявки");
+                    if (tasks != null && tasks.size() > 0) {
+                        for (Tasks t : tasks) {
+                            if (t.getStatus().equals(TaskStatus.OPEN) && t.getType().equals(TaskType.PAY_BONUSES))
+                                task = t;
                         }
                     }
-                    new_message.setText("Запрос принят, ждите приглашения в чат");
-                }
-                break;
-            default:
-                new_message.setText("Что то пошло не так обратитесь в тех. поддрежку");
-                break;
+                    int checkCash = -1;
+                    if (cash != null)
+                        checkCash = cash.compareTo(new BigDecimal("0.01"));
+                    System.out.println("checkCash=" + checkCash);
+                    String string = "";
+                    if (user.getPersonalData().getAdvcashWallet() == null) {
+                        System.out.println("Заявка не принята, не установлен кошелёк Advcash.");
+                        string = "Заявка не принята, не установлен кошелёк Advcash.";
+                    } else if (checkCash == -1) {
+                        string = "Заявка не принята, не достаточно средств.";
+                        System.out.println(string);
+                    } else if (task != null) {
+                        string = " Вы уже подали заявку " + task.getDateTimeOpening();
+                        System.out.println(string);
+                    } else {
+                        task = new Tasks(TaskType.PAY_BONUSES, user);
+                        dbService.addTask(user.getUserID(), task);
+                        string = "Заявка принята!";
+                        System.out.println(string);
+                    }
+                    System.out.println(string);
+                    new_message.setText(string);
+                    break;
+                case REQUEST_PRIZE_BUTTON:
+                    user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
+                    System.out.println("достали пользователя " + user);
+                    cash = user.getPersonalData().getLocalWallet();
+                    System.out.println("cash=" + cash);
+                    tasks = user.getTasks();
+                    task = null;
+                    System.out.println("проверяем наличие заявки");
+                    if (tasks != null && tasks.size() > 0) {
+                        for (Tasks t : tasks) {
+                            if (t.getStatus().equals(TaskStatus.OPEN) && t.getType().equals(TaskType.PAY_PRIZE))
+                                task = t;
+                        }
+                    }
+                    checkCash = -1;
+                    if (cash != null)
+                        checkCash = cash.compareTo(new BigDecimal("0.01"));
+                    System.out.println("checkCash=" + checkCash);
+                    string = "";
+                    if (user.getPersonalData().getAdvcashWallet() == null) {
+                        System.out.println("Заявка не принята, не установлен кошелёк Advcash.");
+                        string = "Заявка не принята, не установлен кошелёк Advcash.";
+                    } else if (checkCash == -1) {
+                        string = "Заявка не принята, не достаточно средств.";
+                        System.out.println(string);
+                    } else if (task != null) {
+                        string = " Вы уже подали заявку " + task.getDateTimeOpening();
+                        System.out.println(string);
+                    } else {
+                        task = new Tasks(TaskType.PAY_BONUSES, user);
+                        dbService.addTask(user.getUserID(), task);
+                        string = "Заявка принята!";
+                        System.out.println(string);
+                    }
+                    System.out.println(string);
+                    new_message.setText(string);
+                    break;
+                case TASK_PRIVATE_CHAT:
+                    user = dbService.getUserFromDb(callbackQuery.getMessage().getChat().getId());
+                    task = user.getCurrentTasks(TaskType.PRIVATE_CHAT);
+                    if (task != null) {
+                        new_message.setText("У вас уже открыта заявка на персональный чат.\n" + task);
+                    } else {
+                        task = new Tasks(TaskType.PRIVATE_CHAT, user);
+                        dbService.addTask(user.getUserID(), task);
+                        List<User> managers = dbService.getManagers();
+                        for (User manager : managers) {
+                            SendMessage sendMessage = new SendMessage()
+                                    .setChatId(manager.getChatID())
+                                    .setText("Новая заявка на аудит портфеля:"
+                                            + "\nuserName: " + user.getUserName()
+                                            + "\nuserId: " + user.getUserID()
+                                            + "\nВремя создания: " + task.getDateTimeOpening());
+                            try {
+                                sendApiMethod(sendMessage);
+                            } catch (TelegramApiException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        new_message.setText("Запрос принят, ждите приглашения в чат");
+                    }
+                    break;
+                default:
+                    new_message.setText("Что то пошло не так обратитесь в тех. поддрежку");
+                    break;
+            }
         }
         return new_message;
-
     }
 
     public SendMessage adminCommandContext(Message incomingMessage) {
         SendMessage replyMessage = new SendMessage()
                 .setChatId(incomingMessage.getChatId())
-                .setText("Что-то пошло не так");
+                .setText("Что-то пошло не так, сообщите в  поддержку");
+        Boolean isAdmin = dbService.getUserFromDb(incomingMessage.getChatId()).getTypeUser().equals("manager");
         String textIncomingMessage = incomingMessage.getText();
-        if (textIncomingMessage.startsWith(CommandButtons.SEND_SIGNAL.getText())){
-            if(dbService.getUserFromDb(incomingMessage.getChat().getId()).getTypeUser().equals("manager")) {
+        //отправить сигнал
+        if (textIncomingMessage.startsWith(CommandButtons.SEND_SIGNAL.getText())&&isAdmin){
                 List<Long> usersId = dbService.getSubscribers();
                 if (usersId != null && usersId.size() > 0) {
                     for (Long uId : usersId) {
@@ -456,14 +489,13 @@ public class WebhookService extends TelegramWebhookBot  {
                     }
                     replyMessage.setText("Сигнал отправлен " + usersId.size() + " пользователям");
                 }
-            } else{
-                replyMessage.setText(" у вас недостаточно прав для этой команды");
-            }
+          //сменить кошелек
         } else if(textIncomingMessage.startsWith(CommandButtons.CHANGE_AC_WALLET.getText())) {
             String wallet = textIncomingMessage.substring(10);
             dbService.getUserFromDb(incomingMessage.getChat().getId())
                     .getPersonalData().setAdvcashWallet(wallet);
             replyMessage.setText("Кошелек id="+wallet+" установлен");
+          //вывести заявки на чат
         } else if(textIncomingMessage.equals(CommandButtons.CHECK_PRIVATE_CHAT.getText())){
             List<Tasks> tasks = dbService.getTasks(TaskStatus.OPEN,TaskType.PRIVATE_CHAT);
             if (tasks!=null&&tasks.size()>0){
@@ -475,18 +507,29 @@ public class WebhookService extends TelegramWebhookBot  {
             } else {
                 replyMessage.setText("Заявок нет");
             }
-        } else if(textIncomingMessage.equals(CommandButtons.CHECK_TASKS_PAYMENT.getText())){
+          //вывести заявки на выплату бонусов
+        } else if(textIncomingMessage.equals(CommandButtons.CHECK_TASKS_PAYMENT.getText())&&isAdmin){
             List<Tasks> tasks = dbService.getTasks(TaskStatus.OPEN,TaskType.PAY_BONUSES);
             if (tasks!=null&&tasks.size()>0){
-                StringBuilder stringBuilder = new StringBuilder();
                 for (Tasks t : tasks){
-                    stringBuilder.append(tasks).append("\n******\n");
+                    String s = ""+t
+                            +"\nБонусы: "+t.getClient().getPersonalData().getLocalWallet()
+                            +"\nAC кошелёк: "+t.getClient().getPersonalData().getAdvcashWallet();
+                    SendMessage message = new SendMessage(incomingMessage.getChatId(),s);
+                    message.setReplyMarkup(MenuCreator.createCloseTaskButton(t.getId()));
+                    try {
+                        sendApiMethod(message);
+                    } catch (TelegramApiException e) {
+                        log.error("ошибка в запросе заявок, не смог отправить заявку юзеру "+incomingMessage.getChatId());
+                        log.trace(e);
+                    }
+                    replyMessage.setText("******");
                 }
-                replyMessage.setText(stringBuilder.toString());
             } else {
                 replyMessage.setText("заявок нет");
             }
-        } else if (textIncomingMessage.equals(CommandButtons.SET_MENEGERS_MENU.getText())){
+          //предоставить меню админов
+        } else if (textIncomingMessage.equals(CommandButtons.SET_MENEGERS_MENU.getText())&&isAdmin){
             replyMessage.setText("меню");
             replyMessage.setReplyMarkup(MenuCreator.createAdminMenuMarkup());
         }
@@ -496,7 +539,7 @@ public class WebhookService extends TelegramWebhookBot  {
     private BotApiMethod PrivateGroupContext(Message incomingMessage) {
         String texOfMessage = incomingMessage.getText();
         CommandButtons button = CommandButtons.getTYPE(texOfMessage);
-        SendMessage sendMessage =null;
+        SendMessage sendMessage = new SendMessage(incomingMessage.getChatId(),"_");
         switch (button){
             case END_TASK:
                 KickChatMember kick = new KickChatMember(incomingMessage.getChatId(),301363342);
