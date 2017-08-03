@@ -21,6 +21,8 @@ import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import telegram_services.exceptions.AlreadyClosenTask;
+import telegram_services.exceptions.TaskTypeException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -283,7 +285,7 @@ public class WebhookService extends TelegramWebhookBot  {
                         }
                     }
                     text = "*Рефералы 1го уровня:* "
-                            + "\n_Количество оплативших подписку=_"+user.getPersonalData().getReferalsForPrize().size()
+                            + "\n_(оплативших подписку - "+user.getPersonalData().getReferalsForPrize().size()+")_"
                             + "\n" + level1
                             + "\n*Рефералы 2го уровня:* "
                             + "\n" + level2
@@ -293,7 +295,7 @@ public class WebhookService extends TelegramWebhookBot  {
                 message.setText(text);
                 break;
             case LOCAL_WALLET:
-                 user = dbService.getUserFromDb(incomingMessage.getChat().getId());
+                 user = dbService.getUserFromDb(incomingMessage.getChatId());
                  //количесвто реферов
                  int quantityReferals = user.getPersonalData().getReferalsForPrize().size();
                  //количество выплат(0 - нужно 10 рефералов, 1 - нужно 20 рефералов....)
@@ -337,10 +339,12 @@ public class WebhookService extends TelegramWebhookBot  {
         //сначала ветвление для данных с параметрами
         //закрыть заявку
         if (dataFromQuery.startsWith(CommandButtons.CLOSE_TASK.getText())){
+            Long idTask = null;
+            Tasks task=null;
             try {
-                Long idTask = Long.parseLong(dataFromQuery.substring(14));
+                idTask = Long.parseLong(dataFromQuery.substring(14));
                 //супер метод dbService.closeTask(..,..)
-                Tasks task = dbService.closeTask(idTask,chatId);
+                task = dbService.closeTask(idTask,chatId);
                 String s = "";
                 if (task.getType().equals(TaskType.PAY_BONUSES))
                     s = "выплата бонусов";
@@ -349,7 +353,7 @@ public class WebhookService extends TelegramWebhookBot  {
                 else if (task.getType().equals(TaskType.PRIVATE_CHAT))
                     s= "аудит портфеля(персональный чат)";
                 else
-                    log.error("Ошибка в закрытии заявки, не верный тип Task");
+                    throw new TaskTypeException();
                 String textToUserMessage = "Выполнена ваша заявка:" +
                         "\nid: "+idTask
                         +"\nТип: "+s;
@@ -357,21 +361,28 @@ public class WebhookService extends TelegramWebhookBot  {
                 //отправляем уведомление пользователю
                 sendApiMethod(messageToUser);
                 //возвращаем ответ админу
+                System.out.println("возвращаем ответ админу");
                 new_message.setText("Заявка "+task.getId()+" закрыта");
 
             }catch (NumberFormatException e){
-                log.error("ошибка при закрытии заявки, не корректный номер");
+                log.error("ошибка при закрытии заявки, не корректный номер " + dataFromQuery);
                 new_message.setText("некорректный id  заявки");
             } catch (NoTaskInDb noTaskInDb) {
-                log.error("ошибка при закрытии заявки, в базе нет такой заявки ");
+                log.error("ошибка при закрытии заявки, в базе нет такой заявки "+idTask);
                 new_message.setText("в базе нет такой заявки");
             } catch (NoUserInDb noUserInDb) {
                 log.error("ошибка при закрытии заявки, нет юзера-менеджера с id="+chatId);
                 new_message.setText("Вашего userId нет в базе обратитесь в техподдержку");
             } catch (TelegramApiException e) {
-                log.error("Не смог отправить сообщение о закрытии заявки");
+                log.error("Не смог отправить сообщение о закрытии заявки " + task.getClient());
                 new_message.setText("Заявка закрыта, но не отправлено уведомление пользователю");
                 log.trace(e);
+            } catch (AlreadyClosenTask alreadyClosenTask) {
+                log.error("Попытка закрыть уже закрытую заявку" + task);
+                new_message.setText("Заявка уже была закрыта");
+            } catch (TaskTypeException e) {
+                log.error("Ошибка в закрытии заявки, не верный тип Task" + task);
+                new_message.setText("Ошибка, не верный тип заявки");
             }
         }        //данные без параметров
         else {
