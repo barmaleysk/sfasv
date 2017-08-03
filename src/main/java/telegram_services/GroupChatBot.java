@@ -1,5 +1,6 @@
 package telegram_services;
 
+import org.telegram.telegrambots.api.methods.groupadministration.KickChatMember;
 import org.telegram.telegrambots.api.methods.groupadministration.UnbanChatMember;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -23,7 +24,7 @@ public class GroupChatBot extends TelegramLongPollingBot {
         return "439174667:AAEHo-Wgm8u0WI4jlqmHtyC2snx8_m2WLyc";
     }
 
-    public void unkick(Long chatId) {
+    public synchronized void unkick(Long chatId) {
         UnbanChatMember unbanChatMember = new UnbanChatMember(-1001132133431l,chatId.intValue());
         try {
             sendApiMethod(unbanChatMember);
@@ -31,5 +32,10 @@ public class GroupChatBot extends TelegramLongPollingBot {
             System.out.println("не смог кикнуть "+chatId);
             e.printStackTrace();
         }
+    }
+
+    public synchronized void kick(Long id) throws TelegramApiException {
+        KickChatMember kickChatMember = new KickChatMember(-1001132133431l,id.intValue());
+        sendApiMethod(kickChatMember);
     }
 }
