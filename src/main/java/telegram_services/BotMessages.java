@@ -65,7 +65,7 @@ public enum  BotMessages {
             +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
     UNLIMIT_SUBSCRIPTION("Стоимость безлимитной подписки = $0.60"
             +"\nНажмите \"Оплатить\", чтобы перейти к оплате  на сайте Advcash"),
-    DEFAULT("Я пока не знаю что на это ответить"),
+    DEFAULT("Неизвестная команда"),
     SETTINGS_MENU("Меню настроек");
     private String textMessage;
 

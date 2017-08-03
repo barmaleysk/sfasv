@@ -79,6 +79,8 @@ public class WebhookService extends TelegramWebhookBot  {
         }
     }
 
+
+
     public SendMessage startContext(Message message) {
         //вытаскиваем данные из сообщения и создаем пользователя
         long userID = message.getChat().getId();
@@ -127,6 +129,7 @@ public class WebhookService extends TelegramWebhookBot  {
         String texOfMessage = incomingMessage.getText();
         SendMessage message = new SendMessage()
                 .setChatId(incomingMessage.getChatId())
+                .setText(BotMessages.DEFAULT.getText())
                 .enableMarkdown(true);
         CommandButtons button = CommandButtons.getTYPE(texOfMessage);
         User user = null;
@@ -269,14 +272,14 @@ public class WebhookService extends TelegramWebhookBot  {
                     String level3 = "";
                     for (User u : userList) {
                         if (parentLevel + 1 == u.getLevel()) {
-                            level1 = level1 + " " + u.getUserName() + "-" + u.getFirstName()+ "-";
-                            level1=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level1+"+"+"\n":level1+"\n";
+                            level1 = level1 + " " + u.getUserName() + "-" + u.getFirstName();
+                            level1=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level1+"+\n":level1+"-\n";
                         } else if (parentLevel + 2 == u.getLevel()) {
-                            level2 = level2 + " " + u.getUserName() + "-" + u.getFirstName()+";\n";
-                            level2=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level2+"+"+"\n":level2+"\n";
+                            level2 = level2 + " " + u.getUserName() + "-" + u.getFirstName();
+                            level2=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level2+"+\n":level2+"-\n";
                         } else {
-                            level3 = level3 + " " + u.getUserName() + "-" + u.getFirstName()+"\n";
-                            level3=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level3+"+"+"\n":level3+"\n";
+                            level3 = level3 + " " + u.getUserName() + "-" + u.getFirstName();
+                            level3=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level3+"+\n":level3+"-\n";
                         }
                     }
                     text = "*Рефералы 1го уровня:* "
@@ -317,30 +320,6 @@ public class WebhookService extends TelegramWebhookBot  {
                     message.setText(string);
                     message.setReplyMarkup(paymentsBonusButton);
                 }
-                break;
-            case SET_REFER:
-                break;
-            case SET_TRIAL:
-                break;
-            case FAIL:
-                break;
-            case SET_MENEGERS_MENU:
-                break;
-            case CHECK_SUBSRIPTIONS:
-                break;
-            case CHECK_TASKS_PAYMENT:
-                break;
-            case CHECK_PRIVATE_CHAT:
-                break;
-            case CHECK_TASK_PRIZE:
-                break;
-            case SEND_SIGNAL:
-                break;
-            case END_TASK:
-                break;
-            case CHANGE_AC_WALLET:
-                break;
-            case CLOSE_TASK:
                 break;
             default:
                 message.setText(BotMessages.DEFAULT.getText());
