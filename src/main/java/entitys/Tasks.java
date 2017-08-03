@@ -80,6 +80,7 @@ public class Tasks implements Serializable {
     @Override
     public String toString() {
         return "Id заявки: "+this.id
+                +"\nТип: "+this.type
                 +"\nДата создания: "+this.dateTimeOpening
                 +"\nUserId: "+getClient().getUserID()
                 +"\nUserName: "+getClient().getPersonalData().getUserNameTelegram()

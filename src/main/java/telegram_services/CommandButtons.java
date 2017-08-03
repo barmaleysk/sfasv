@@ -47,6 +47,7 @@ public enum CommandButtons {
     CHECK_SUBSRIPTIONS("/подписчики"),
     CHECK_TASKS_PAYMENT("/заявки на выплаты"),
     CHECK_PRIVATE_CHAT("/заявки на чат"),
+    CHECK_TASK_PRIZE("/заявки на премию"),
     SEND_SIGNAL("/сигнал"),
     //групповой чат
     END_TASK("/endtask"),

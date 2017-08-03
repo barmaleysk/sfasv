@@ -1,9 +1,6 @@
 package database_service;
 
-import entitys.LocalTransaction;
-import entitys.TaskStatus;
-import entitys.Tasks;
-import entitys.User;
+import entitys.*;
 import org.apache.log4j.Logger;
 
 import javax.persistence.*;
@@ -186,22 +183,28 @@ public class DbService {
         else if (manager==null)
             throw new NoUserInDb();
         else {
-            LocalTransaction localTransaction = new LocalTransaction(
-                    LocalDateTime.now(),
-                    task.getClient().getPersonalData().getLocalWallet(),
-                    client
-            );
-            client.addLocalTransactions(localTransaction);
-            client.getPersonalData().setLocalWallet(new BigDecimal("0.00"));
+            //если заявка на выплату то добавляем локальную тразакцию и списываем деньги
+            if (task.getType().equals(TaskType.PAY_PRIZE)||task.getType().equals(TaskType.PAY_BONUSES)) {
+                LocalTransaction localTransaction = new LocalTransaction(
+                        LocalDateTime.now(),
+                        //чтобы записать типа -10.00  из 0 вычитаем значение кошелька
+                        new BigDecimal("0.00").subtract(task.getClient().getPersonalData().getLocalWallet()),
+                        client
+                );
+                client.addLocalTransactions(localTransaction);
+                client.getPersonalData().setLocalWallet(new BigDecimal("0.00"));
+                log.info("выполнен вывод средств для "+client);
+            }
             task.setStatus(TaskStatus.CLOSE);
+            task.setDateTimeEnding(LocalDateTime.now());
             if(task.getClient().getUserID()!=manager.getUserID())
                task.setMeneger(manager);
             else
                 log.error("Ошибка при закрытии заявки UserId менеджера и клиента одинаковы="+mangerId);
-            task.setDateTimeEnding(LocalDateTime.now());
+
         }
         tr.commit();
-        log.info("выполнен вывод средств для "+client);
+        log.info("закрыта заявка для "+client);
         return task;
     }
 }
