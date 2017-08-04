@@ -34,6 +34,10 @@
             <property name="javax.persistence.jdbc.user" value="bot"/>
             <property name="javax.persistence.jdbc.password" value="MegaP0kem0n"/>
             <property name="javax.persistence.schema-generation.database.action" value="create"/>
+            <property name="eclipselink.query-results-cache" value="false"/>
+            <property name="eclipselink.cache.shared.default" value="false"/>
+            <property name="eclipselink.cache.size.default" value="0"/>
+            <property name="eclipselink.cache.type.default" value="None"/>
         </properties>
     </persistence-unit>
 </persistence>
