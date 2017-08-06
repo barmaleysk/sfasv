@@ -100,10 +100,6 @@ public class User implements Serializable{
         return typeUser;
     }
 
-    public void setTypeUser(String typeUser) {
-        this.typeUser = typeUser;
-    }
-
     public Services getServices() {
         if (this.services==null)
             this.services= new Services();
@@ -160,6 +156,10 @@ public class User implements Serializable{
             }
         }
         return task;
+    }
+
+    public List<LocalTransaction> getLocalTransactions() {
+        return this.localTransactions;
     }
 
     @Override

@@ -20,9 +20,10 @@ public class PersonalData implements Serializable {
     private String advcashWallet;
     @CollectionTable()
     private List<Long> referalsForPrize;
-    private int countPrize=0;
+    private int countPrize=10;
     @Column(scale = 2,precision = 10)
     private BigDecimal localWallet;
+    private int prize=0;
 
     public PersonalData() {
     }
@@ -77,11 +78,11 @@ public class PersonalData implements Serializable {
         getReferalsForPrize().add(userId);
     }
 
-    public int getCountPrize() {
-        return countPrize;
+    public int getPrize() {
+        return prize;
     }
 
-    public void incrementCountPrize() {
-        this.countPrize++;
+    public void setPrize(int prize) {
+        this.prize = prize;
     }
 }

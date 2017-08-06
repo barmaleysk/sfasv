@@ -143,7 +143,7 @@ public class DbService {
 
     public synchronized List<Long> getSubscribers(){
         EntityManager em = entityManagerFactory.createEntityManager();
-        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription>=:d AND s.unlimitSubscription=:b")
+        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription>=:d OR s.unlimitSubscription=:b")
                 .setParameter("d", LocalDateTime.now())
                 .setParameter("b",true);
         List<Long> usersId =null;
@@ -222,6 +222,8 @@ public class DbService {
                 );
                 client.addLocalTransactions(localTransaction);
                 client.getPersonalData().setLocalWallet(new BigDecimal("0.00"));
+                client.getPersonalData().setPrize(0);
+
                 log.info("выполнен вывод средств для "+client);
             }
             task.setStatus(TaskStatus.CLOSE);

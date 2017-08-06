@@ -296,12 +296,8 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case LOCAL_WALLET:
                  user = dbService.getUserFromDb(incomingMessage.getChatId());
-                 //количесвто реферов
-                 int quantityReferals = user.getPersonalData().getReferalsForPrize().size();
-                 //количество выплат(0 - нужно 10 рефералов, 1 - нужно 20 рефералов....)
-                 int countPaymentPrize = user.getPersonalData().getCountPrize();
                  //проверяем набрал ли рефовод следующие 10 платежей от первой линии
-                if (quantityReferals>0&&quantityReferals%10==0&&quantityReferals/10>countPaymentPrize){
+                if (user.getPersonalData().getPrize()>0){
                     BigDecimal cash = user.getLocalWallet();
                     String string = "На вашем счету: *"+cash +"*"
                             +"\n"+user.getPersonalData().getReferalsForPrize().size()+" приглашенных вами пользователей оплатили подписку и вам полагается премия 1000$"
@@ -598,6 +594,34 @@ public class WebhookService extends TelegramWebhookBot  {
         else if (textIncomingMessage.equals(CommandButtons.SET_MENEGERS_MENU.getText())&&isAdmin){
             replyMessage.setText("меню");
             replyMessage.setReplyMarkup(MenuCreator.createAdminMenuMarkup());
+        }
+        //дабавить юзера юзеру
+        if (textIncomingMessage.startsWith("/adduser")){
+            Long id = 301363342l;
+            User user1 = new User(11,"@null","testuser11",null,11);
+            User user2 = new User(12,"@null","testuser12",null,12);
+            User user3 = new User(13,"@null","testuser13",null,13);
+            User user4 = new User(14,"@null","testuser14",null,14);
+            User user5 = new User(15,"@null","testuser15",null,15);
+            User user6 = new User(16,"@null","testuser16",null,16);
+            User user7 = new User(17,"@null","testuser17",null,17);
+            User user8 = new User(18,"@null","testuser18",null,18);
+            User user9 = new User(19,"@null","testuser19",null,19);
+            User user10 = new User(20,"@null","testuser20",null,20);
+            try {
+                dbService.addChildrenUser(id,user1);
+                dbService.addChildrenUser(id,user2);
+                dbService.addChildrenUser(id,user3);
+                dbService.addChildrenUser(id,user4);
+                dbService.addChildrenUser(id,user5);
+                dbService.addChildrenUser(id,user6);
+                dbService.addChildrenUser(id,user7);
+                dbService.addChildrenUser(id,user8);
+                dbService.addChildrenUser(id,user9);
+                dbService.addChildrenUser(id,user10);
+            } catch (NoUserInDb noUserInDb) {
+                noUserInDb.printStackTrace();
+            }
         }
         return replyMessage;
     }
