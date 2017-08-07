@@ -29,7 +29,7 @@ public class Main {
         TelegramLongPollingBot groupChatBot = new GroupChatBot();
         WebhookService webhookService = new WebhookService(groupChatBot);
         KickTimer kickTimer = new KickTimer(groupChatBot);
-        Timer timer = new Timer();
+
         //LocalDateTime dateTime = LocalDateTime.now();
        // timer.schedule();
         //taimer.start();
@@ -38,6 +38,8 @@ public class Main {
             telegramBotsApi.registerBot(webhookService);
             telegramBotsApi.registerBot(groupChatBot);
             System.out.println("TelegramService запущен");
+            kickTimer.start();
+            System.out.println("KickTimer запущен");
             log.info("*********Bot started********");
         } catch (TelegramApiRequestException e) {
             System.out.println("Не смог создать telegramBotsApi");

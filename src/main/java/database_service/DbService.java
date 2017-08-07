@@ -185,7 +185,7 @@ public class DbService {
 
     public synchronized List<Long> getUnSubscriptionUsers(){
         EntityManager em = entityManagerFactory.createEntityManager();
-        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription<=:d AND s.unlimitSubscription<>:b AND s.deletedInMainChat<>:r")
+        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE (s.endDateOfSubscription<=:d OR s.unlimitSubscription<>:b) AND s.deletedInMainChat<>:r")
                 .setParameter("d",LocalDateTime.now())
                 .setParameter("b",true)
                 .setParameter("r",true);
