@@ -91,12 +91,12 @@ public class WebhookService extends TelegramWebhookBot  {
         String lastName = message.getChat().getLastName();
         long chatID = message.getChatId();
         User newUser = new User(userID, userName, firstName, lastName, chatID);
-        newUser.setEndDateOfSubscription(LocalDateTime.now().plusDays(1)); //включаем тестовый период
+        newUser.setEndDateOfSubscription(LocalDateTime.now());//.plusDays(1)); //включаем тестовый период
         log.info("New User created: "+newUser);
         //готовим сообщение для ответа
         SendMessage replyMessage = new SendMessage().setChatId(chatID).enableMarkdown(true);
-        String welcomeText="*"+firstName + "*, рады приветствовать Вас в проекте New Wave, мы готовы предоставить, лучшие сигналы для торговли на криптовалютном рынке"
-                + "\nУ вас бесплатный тестовый период 1 день, если вам всё понравилось, то купите пописку";
+        String welcomeText="*"+firstName + "*, рады приветствовать Вас в проекте New Wave, мы готовы предоставить, лучшие сигналы для торговли на криптовалютном рынке!\n";
+               // + "\nУ вас бесплатный тестовый период 1 день, если вам всё понравилось, то купите подписку";
         welcomeText=userName.equals("@null")?welcomeText+"\n*Внимание!* У Вас не заполнен *Username* в настройках *Telegram*, он необходим для взаимодействия с Вами," +
                 "пожалуйста задайте его , затем(чтобы обновить в нашей базе), в меню бота нажмите *Параметры* -> *Мои данные*":welcomeText;
         //проверяем start без параметров=без приглашения||с параметрами=приглашенный
@@ -190,11 +190,12 @@ public class WebhookService extends TelegramWebhookBot  {
                     } else {
                         message.setText("Ваша подписка истекла: " + endDate);
                     }
-                } else {
-                    message.setText("У вас еще не было подписки"
-                            + "\n ");
-                    message.setReplyMarkup(trialInlineButton);
                 }
+                //else {
+                 //   message.setText("У вас еще не было подписки"
+                  //          + "\n ");
+                 //   message.setReplyMarkup(trialInlineButton);
+               // }
                 break;
             case PRIVATE_CHAT:
                 User userPC = dbService.getUserFromDb(incomingMessage.getChatId());

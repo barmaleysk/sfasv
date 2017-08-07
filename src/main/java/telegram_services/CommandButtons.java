@@ -11,9 +11,9 @@ public enum CommandButtons {
     PARTNER_PROGRAM("Партнёрская программа"),
     SETTINGS("Параметры"),
     //subscripe menu
-    ONE_MONTH("Подписка 1 месяц"),
-    TWO_MONTH("Подписка 2 месяца"),
-    THREE_MONTH("Подписка 3 месяца"),
+    ONE_MONTH("Подписка на 2 дня"),
+    TWO_MONTH("Подписка на 4 дня"),
+    THREE_MONTH("Подписка на 7 дней"),
     CHECK_SUBSCRIPTION("Проверить подписку"),
     BACK_IN_MAIN_MENU("<- Главное меню"),
     PRIVATE_CHAT("Аудит портфеля"),
