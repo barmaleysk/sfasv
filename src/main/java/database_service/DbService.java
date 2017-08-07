@@ -185,9 +185,10 @@ public class DbService {
 
     public synchronized List<Long> getUnSubscriptionUsers(){
         EntityManager em = entityManagerFactory.createEntityManager();
-        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription<=:d AND s.unlimitSubscription=:b ")
+        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription<=:d AND s.unlimitSubscription<>:b AND s.deletedInMainChat<>:r")
                 .setParameter("d",LocalDateTime.now())
-                .setParameter("b",false);
+                .setParameter("b",true)
+                .setParameter("r",true);
         List<Long> usersId = query.getResultList();
         em.clear();
         System.out.println("usersId:" +usersId);
@@ -238,5 +239,15 @@ public class DbService {
         em.close();
         log.info("закрыта заявка для "+client);
         return task;
+    }
+
+    public synchronized void setDeletedMainChat(long userID, boolean b) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        tr.begin();
+        User user = em.find(User.class,userID);
+        user.getServices().setDeletedInMainChat(b);
+        tr.commit();
+        em.close();
     }
 }

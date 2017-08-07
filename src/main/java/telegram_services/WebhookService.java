@@ -199,7 +199,9 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case PRIVATE_CHAT:
                 User userPC = dbService.getUserFromDb(incomingMessage.getChatId());
-                if (userPC.getServices().getOnetimeConsultation()
+                if (userPC.getPersonalData().getUserNameTelegram().equals("@null")){
+                    message.setText("Чтобы воспользоваться услугой, заполните username в настройках телеграм, и нажмите \"Мои данные\" в меню \"Параметры\"").enableMarkdown(false);
+                } else if (userPC.getServices().getOnetimeConsultation()
                         ||userPC.getServices().getUnlimit()){
                     message.setText("Оставьте заявку и вас пригласят в чат");
                     message.setReplyMarkup(MenuCreator.createInlineButton(CommandButtons.TASK_PRIVATE_CHAT));
@@ -217,7 +219,10 @@ public class WebhookService extends TelegramWebhookBot  {
             case INVITE_TO_CHAT:
                 user = dbService.getUserFromDb(incomingMessage.getChatId());
                 if (user!=null&&user.getServices().getEndDateOfSubscription().toLocalDate().isAfter(LocalDate.now())||user.getServices().getUnlimit()) {
-                    groupChatBot.unkick(incomingMessage.getChatId());
+                    if (user.getServices().getDeletedInMainChat()==null||user.getServices().getDeletedInMainChat()) {
+                        groupChatBot.unkick(incomingMessage.getChatId());
+                        dbService.setDeletedMainChat(user.getUserID(), false);
+                    }
                     message.setText("Ссылка на групповой чат: \nhttps://t.me/joinchat/DqG8xUN6_De-fVQ6HXsm4w").enableMarkdown(false);
                 }else
                     message.setText("Чтобы получить ссылку на групповой чат купите подписку. \n Участники у которых закончилась подписка удаляются из чата");
@@ -551,8 +556,26 @@ public class WebhookService extends TelegramWebhookBot  {
                     }
                     replyMessage.setText("Сигнал отправлен " + count + " пользователям");
                 }
+
           //сменить кошелек
-        } else if(textIncomingMessage.startsWith(CommandButtons.CHANGE_AC_WALLET.getText())) {
+        } else if (textIncomingMessage.startsWith("/сообщение ")&&isAdmin){
+            System.out.println(textIncomingMessage);
+            Long userId = Long.parseLong(textIncomingMessage.substring(11,textIncomingMessage.indexOf("-")));
+            System.out.println(userId);
+            String text = textIncomingMessage.substring(textIncomingMessage.indexOf("-")+1);
+            System.out.println(text);
+            SendMessage sendMessage = new SendMessage(userId,text).enableMarkdown(false);
+            try {
+                System.out.println("отправляем сообщение");
+                sendApiMethod(sendMessage);
+                System.out.println("отправил");
+                replyMessage.setText("сообщение для userId="+userId+"отправлено");
+            } catch (TelegramApiException e) {
+                replyMessage.setText("сообщение для userId="+userId+"НЕ отправлено");
+                e.printStackTrace();
+            }
+        }//сменить кошелек
+        else if(textIncomingMessage.startsWith(CommandButtons.CHANGE_AC_WALLET.getText())) {
             String wallet = textIncomingMessage.substring(10);
             dbService.getUserFromDb(incomingMessage.getChat().getId())
                     .getPersonalData().setAdvcashWallet(wallet);
