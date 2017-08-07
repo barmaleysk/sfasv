@@ -19,6 +19,7 @@ public class KickTimer extends TimerTask {
     @Override
     public void run() {
         log.info("===kick timer started===");
+
         List<Long> usersId = DbService.getInstance().getUnSubscriptionUsers();
         log.info("Количество пользователей для удаления="+usersId.size());
         int countUsers=0;

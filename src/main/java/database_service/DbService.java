@@ -101,7 +101,7 @@ public class DbService {
 
     public synchronized List<User> getChildrenUsers(int parentLevel,int parenLeftKey, int parentRightKey ){
         EntityManager em = entityManagerFactory.createEntityManager();
-        List<User> usersList = new ArrayList<>();
+        List<User> usersList;
         TypedQuery<User> query = em.createNamedQuery("User.getAllChildren",User.class);
         query.setParameter("rk",parentRightKey);
         query.setParameter("lk",parenLeftKey);
@@ -143,7 +143,7 @@ public class DbService {
 
     public synchronized List<Long> getSubscribers(){
         EntityManager em = entityManagerFactory.createEntityManager();
-        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription>=:d OR s.unlimitSubscription=:b")
+        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription>:d OR s.unlimitSubscription=:b")
                 .setParameter("d", LocalDateTime.now())
                 .setParameter("b",true);
         List<Long> usersId =null;

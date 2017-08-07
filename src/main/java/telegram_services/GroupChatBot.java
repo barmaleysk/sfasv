@@ -34,6 +34,11 @@ public class GroupChatBot extends TelegramLongPollingBot {
         }
     }
 
+    public void getChatMember(){
+
+    }
+
+
     public synchronized void kick(Long id) throws TelegramApiException {
         KickChatMember kickChatMember = new KickChatMember(-1001132133431l,id.intValue());
         sendApiMethod(kickChatMember);

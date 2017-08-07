@@ -87,8 +87,8 @@ public class WebhookService extends TelegramWebhookBot  {
         //вытаскиваем данные из сообщения и создаем пользователя
         long userID = message.getChat().getId();
         String userName = "@"+message.getChat().getUserName();
-        String firstName = message.getChat().getFirstName();
-        String lastName = message.getChat().getLastName();
+        String firstName = null;
+        String lastName = null; //message.getChat().getLastName();
         long chatID = message.getChatId();
         User newUser = new User(userID, userName, firstName, lastName, chatID);
         newUser.setEndDateOfSubscription(LocalDateTime.now());//.plusDays(1)); //включаем тестовый период
@@ -216,7 +216,7 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case INVITE_TO_CHAT:
                 user = dbService.getUserFromDb(incomingMessage.getChatId());
-                if (user.getServices().getEndDateOfSubscription().toLocalDate().isAfter(LocalDate.now())||user.getServices().getUnlimit()) {
+                if (user!=null&&user.getServices().getEndDateOfSubscription().toLocalDate().isAfter(LocalDate.now())||user.getServices().getUnlimit()) {
                     groupChatBot.unkick(incomingMessage.getChatId());
                     message.setText("Ссылка на групповой чат: \nhttps://t.me/joinchat/DqG8xUN6_De-fVQ6HXsm4w").enableMarkdown(false);
                 }else
@@ -236,8 +236,9 @@ public class WebhookService extends TelegramWebhookBot  {
                             +"\n/acwallet id_кошелька").enableMarkdown(false);
                 break;
             case MY_DATA:
-                String firstName = incomingMessage.getChat().getFirstName();
-                String lastName =incomingMessage.getChat().getLastName();
+
+                String firstName = null;//"ваше имя установим позже";// incomingMessage.getChat().getFirstName();
+                String lastName = null;//incomingMessage.getChat().getLastName();
                 String userName = "@"+incomingMessage.getChat().getUserName();
                 dbService.updatePersonalData(firstName,lastName,userName,incomingMessage.getChatId());
                 user = dbService.getUserFromDb(incomingMessage.getChatId());
@@ -270,30 +271,52 @@ public class WebhookService extends TelegramWebhookBot  {
                     text = "У вас нет рефералов";
                 } else {
                     List<User> userList = dbService.getChildrenUsers(parentLevel, parentLeftKey, parentRightKey);
-                    String level1 = "";
-                    String level2 = "";
-                    String level3 = "";
+                    StringBuilder level1o = new StringBuilder();
+                    StringBuilder level1n = new StringBuilder();
+                    int countlevel1=0;
+                    StringBuilder level2o = new StringBuilder();
+                    StringBuilder level2n = new StringBuilder();
+                    StringBuilder level3o = new StringBuilder();
+                    StringBuilder level3n = new StringBuilder();
                     for (User u : userList) {
                         if (parentLevel + 1 == u.getLevel()) {
-                            level1 = level1 + " " + u.getUserName() + "-" + u.getFirstName();
-                            level1=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level1+"+\n":level1+"-\n";
+                            if (u.getAdvcashTransactions().size()>0){
+                                level1o.append(u.getUserName()+"+\n");
+                                countlevel1++;
+                            }else
+                            {
+                                level1n.append(u.getUserName()+"\n");
+                            }
                         } else if (parentLevel + 2 == u.getLevel()) {
-                            level2 = level2 + " " + u.getUserName() + "-" + u.getFirstName();
-                            level2=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level2+"+\n":level2+"-\n";
+                            if (u.getAdvcashTransactions().size()>0){
+                                level2o.append(u.getUserName()+"+\n");
+                                countlevel1++;
+                            }else
+                            {
+                                level2n.append(u.getUserName()+"\n");
+                            }
                         } else {
-                            level3 = level3 + " " + u.getUserName() + "-" + u.getFirstName();
-                            level3=u.getAdvcashTransactions()!=null&&u.getAdvcashTransactions().size()>0?level3+"+\n":level3+"-\n";
+                            if (u.getAdvcashTransactions().size()>0){
+                                level3o.append(u.getUserName()+"+\n");
+                                countlevel1++;
+                            }else
+                            {
+                                level3n.append(u.getUserName()+"\n");
+                            }
                         }
                     }
                     text = "*Рефералы 1го уровня:* "
                             + "\n_(оплативших подписку - "+user.getPersonalData().getReferalsForPrize().size()+")_"
-                            + "\n" + level1
+                            + "\n" + level1o.toString()
+                            + "\n" + level1n.toString()
                             + "\n*Рефералы 2го уровня:* "
-                            + "\n" + level2
+                            + "\n" + level2o.toString()
+                            +"\n" + level2n.toString()
                             + "\n*Рефералы 3го уровня:* "
-                            + "\n" + level3;
+                            + "\n" + level3o.toString()
+                            + "\n"+ level3n.toString();
                 }
-                message.setText(text);
+                message.setText(text).enableMarkdown(false);
                 break;
             case LOCAL_WALLET:
                  user = dbService.getUserFromDb(incomingMessage.getChatId());
@@ -509,20 +532,24 @@ public class WebhookService extends TelegramWebhookBot  {
         String textIncomingMessage = incomingMessage.getText();
         //отправить сигнал
         if (textIncomingMessage.startsWith(CommandButtons.SEND_SIGNAL.getText())&&isAdmin){
+            int count = 0;
                 List<Long> usersId = dbService.getSubscribers();
                 if (usersId != null && usersId.size() > 0) {
                     for (Long uId : usersId) {
-                        SendMessage sendMessage = new SendMessage()
-                                .setChatId(uId)
-                                .setText(textIncomingMessage.substring(8));
-                        try {
-                            sendApiMethod(sendMessage);
-                        } catch (TelegramApiException e) {
-                            System.out.println("Не смог отправить сигнал "+uId);
-                            e.printStackTrace();
+                        if (uId>100) {
+                            SendMessage sendMessage = new SendMessage()
+                                    .setChatId(uId)
+                                    .setText(textIncomingMessage.substring(8));
+                            try {
+                                sendApiMethod(sendMessage);
+                                count++;
+                            } catch (TelegramApiException e) {
+                                System.out.println("Не смог отправить сигнал " + uId);
+                                e.printStackTrace();
+                            }
                         }
                     }
-                    replyMessage.setText("Сигнал отправлен " + usersId.size() + " пользователям");
+                    replyMessage.setText("Сигнал отправлен " + count + " пользователям");
                 }
           //сменить кошелек
         } else if(textIncomingMessage.startsWith(CommandButtons.CHANGE_AC_WALLET.getText())) {
