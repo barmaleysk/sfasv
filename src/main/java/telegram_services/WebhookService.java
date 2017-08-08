@@ -28,6 +28,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by kuteynikov on 14.07.2017.
@@ -87,8 +89,31 @@ public class WebhookService extends TelegramWebhookBot  {
         //вытаскиваем данные из сообщения и создаем пользователя
         long userID = message.getChat().getId();
         String userName = "@"+message.getChat().getUserName();
-        String firstName = null;
-        String lastName = null; //message.getChat().getLastName();
+        String tempFirstName = message.getChat().getFirstName();
+        String tempmLastName = message.getChat().getLastName();
+
+        String firstName=null;
+        String lastName=null;
+
+        String p = "[\\w]*";
+        Pattern pattern = Pattern.compile(p,Pattern.UNICODE_CHARACTER_CLASS);
+
+        try {
+            Matcher matcher = pattern.matcher(tempFirstName);
+            if (tempFirstName!=null&&matcher.matches()) {
+                firstName = tempFirstName;
+            }
+        }catch (Exception e){
+            log.info(" у пользователя"+message.getChat()+" картинка в имени");
+        }
+        try {
+            Matcher matcher = pattern.matcher(tempmLastName);
+            if (tempmLastName!=null&&matcher.matches()) {
+                lastName = tempmLastName;
+            }
+        }catch (Exception e){
+            log.info(" у пользователя"+message.getChat()+" картинка в фамилии");
+        }
         long chatID = message.getChatId();
         User newUser = new User(userID, userName, firstName, lastName, chatID);
         newUser.setEndDateOfSubscription(LocalDateTime.now());//.plusDays(1)); //включаем тестовый период
@@ -241,9 +266,31 @@ public class WebhookService extends TelegramWebhookBot  {
                             +"\n/acwallet id_кошелька").enableMarkdown(false);
                 break;
             case MY_DATA:
-
-                String firstName = null;//"ваше имя установим позже";// incomingMessage.getChat().getFirstName();
-                String lastName = null;//incomingMessage.getChat().getLastName();
+                String p = "[\\w]*";
+                Pattern pattern = Pattern.compile(p,Pattern.UNICODE_CHARACTER_CLASS);
+                String tempFirstName = incomingMessage.getChat().getFirstName();
+                System.out.println("получил имя "+tempFirstName);
+                String firstName=null;
+                try {
+                    Matcher matcher = pattern.matcher(tempFirstName);
+                    if (tempFirstName!=null&&matcher.matches()) {
+                        System.out.println(tempFirstName);
+                        firstName = tempFirstName;
+                    }
+                }catch (Exception e){
+                    log.info(" у пользователя"+incomingMessage.getChatId()+" картинка в имени");
+                }
+                String tempmLastName = incomingMessage.getChat().getLastName();
+                String lastName=null;
+                try {
+                    Matcher matcher = pattern.matcher(tempmLastName);
+                    if (tempmLastName!=null&&matcher.matches()) {
+                        System.out.println(tempmLastName);
+                        lastName = tempmLastName;
+                    }
+                }catch (Exception e){
+                    log.info(" у пользователя"+incomingMessage.getChatId()+" картинка в фамилии");
+                }
                 String userName = "@"+incomingMessage.getChat().getUserName();
                 dbService.updatePersonalData(firstName,lastName,userName,incomingMessage.getChatId());
                 user = dbService.getUserFromDb(incomingMessage.getChatId());
