@@ -35,6 +35,7 @@ public class KickTimer extends Thread {
                 System.out.println("Количество пользователей для удаления из MainChat=" + usersId.size());
                 log.info("Количество пользователей для удаленияиз MainChat=" + usersId.size());
                 int countUsers = 0;
+                int countCheckUser=0;
                 for (Long id : usersId) {
                     try {
                         Thread.sleep(4000l);
@@ -45,12 +46,14 @@ public class KickTimer extends Thread {
                     } catch (TelegramApiException e) {
                         log.info("не удалось кикнуть юзера id" + id);
                         DbService.getInstance().setDeletedMainChat(id,true);
+                        countCheckUser++;
                         System.out.println("Юзера "+id+" нет в группе, помечен в базе");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
                 log.info("кинул " + countUsers + " юзеров");
+                log.info("проверил "+countCheckUser+ "юзеров");
                 log.info("===kick timer stoped===");
             }
         }

@@ -4,10 +4,7 @@ import configs.GlobalConfigs;
 import database_service.DbService;
 import database_service.NoTaskInDb;
 import database_service.NoUserInDb;
-import entitys.TaskStatus;
-import entitys.TaskType;
-import entitys.Tasks;
-import entitys.User;
+import entitys.*;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.groupadministration.KickChatMember;
@@ -156,14 +153,35 @@ public class WebhookService extends TelegramWebhookBot  {
         String texOfMessage = incomingMessage.getText();
         SendMessage message = new SendMessage()
                 .setChatId(incomingMessage.getChatId())
-                .setText(BotMessages.DEFAULT.getText())
-                .enableMarkdown(true);
+                .setText(BotMessages.DEFAULT.getText());
         CommandButtons button = CommandButtons.getTYPE(texOfMessage);
         User user = null;
         switch (button) {
             case START:
                 message.setText(BotMessages.MAIN_MENU.getText());
                 message.setReplyMarkup(mainMenuMarkup);
+                break;
+            case SHOW_SIGNAL:
+                user = dbService.getUserFromDb(incomingMessage.getChatId());
+                if (user.getServices().getEndDateOfSubscription().toLocalDate().isAfter(LocalDate.now())||user.getServices().getUnlimit()){
+                    List<Signal> signals = dbService.getSignals();
+                    System.out.println(signals);
+                    if (signals!=null&&signals.size()>0){
+                        StringBuilder builder = new StringBuilder();
+                        for (Signal s : signals){
+                            builder.append(s.getDateTime().toLocalDate()).append(" ").append(s.getDateTime().toLocalTime())
+                                    .append("\n").append(s.getText())
+                                    .append("\n*********");
+                            System.out.println(builder.toString());
+                            SendMessage sendMessage = new SendMessage(incomingMessage.getChatId(),builder.toString());
+                            try {
+                                sendApiMethod(sendMessage);
+                            } catch (TelegramApiException e) { log.error("Не смог повторить сигнал "+incomingMessage.getChatId()); }
+
+                            message.setText("******");
+                        }
+                    } else{ message.setText("Новых сигналов пока нет");}
+                }else { message.setText("Повтор сигналов доступен только при наличии подписки");}
                 break;
             case OFORMIT_PODPISCU:
                 message.setText(BotMessages.SELECT_SUBSCRIPTION.getText());
@@ -177,7 +195,7 @@ public class WebhookService extends TelegramWebhookBot  {
                 message.setText(BotMessages.GENERAL_DESCRIPTION.getText());
                 break;
             case FAQ:
-                message.setText(BotMessages.FAQ.getText());
+                message.setText(BotMessages.FAQ.getText()).enableMarkdown(true);
                 break;
             case HOW_TO_CHANGE_CURRENCY:
                 message.setText(BotMessages.HOW_TO_CHANGE_CURRENCY.getText());
@@ -373,7 +391,7 @@ public class WebhookService extends TelegramWebhookBot  {
             case LOCAL_WALLET:
                  user = dbService.getUserFromDb(incomingMessage.getChatId());
                  //проверяем набрал ли рефовод следующие 10 платежей от первой линии
-                if (user.getPersonalData().getPrize()>0){
+               /* if (user.getPersonalData().getPrize()>0){
                     BigDecimal cash = user.getLocalWallet();
                     String string = "На вашем счету: *"+cash +"*"
                             +"\n"+user.getPersonalData().getReferalsForPrize().size()+" приглашенных вами пользователей оплатили подписку и вам полагается премия 1000$"
@@ -383,7 +401,7 @@ public class WebhookService extends TelegramWebhookBot  {
                             + "\n Зявки обрабатываются в конце недели.\n";
                     message.setText(string);
                     message.setReplyMarkup(MenuCreator.createInlineButton(CommandButtons.REQUEST_PRIZE_BUTTON));
-                } else {
+                } else {*/
                     BigDecimal cash = user.getLocalWallet();
                     String string = "На вашем счету: *" + cash + "*"
                             + "\n\nОставьте заявку, чтобы вывести бонусы на ваш счет."
@@ -393,7 +411,7 @@ public class WebhookService extends TelegramWebhookBot  {
                             + "\n Зявки обрабатываются в конце недели.\n";
                     message.setText(string);
                     message.setReplyMarkup(paymentsBonusButton);
-                }
+               // }
                 break;
             default:
                 message.setText(BotMessages.DEFAULT.getText());
@@ -584,6 +602,8 @@ public class WebhookService extends TelegramWebhookBot  {
         String textIncomingMessage = incomingMessage.getText();
         //отправить сигнал
         if (textIncomingMessage.startsWith(CommandButtons.SEND_SIGNAL.getText())&&isAdmin){
+            String textSignal = textIncomingMessage.substring(8);
+            dbService.persistSignal(textSignal);
             int count = 0;
                 List<Long> usersId = dbService.getSubscribers();
                 if (usersId != null && usersId.size() > 0) {
@@ -594,10 +614,13 @@ public class WebhookService extends TelegramWebhookBot  {
                                     .setText(textIncomingMessage.substring(8));
                             try {
                                 sendApiMethod(sendMessage);
+                                Thread.sleep(45l);
                                 count++;
                             } catch (TelegramApiException e) {
-                                System.out.println("Не смог отправить сигнал " + uId);
-                                e.printStackTrace();
+                                log.error("Не смог отправить сигнал "+uId);
+                            } catch (InterruptedException e) {
+                                log.error("ошибка в потоке при отправке сообщений");
+                                log.trace(e);
                             }
                         }
                     }

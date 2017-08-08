@@ -9,7 +9,7 @@ repositories {
     mavenCentral()
 }
 jar {
-    baseName = 'temp-bot'
+    baseName = 'bot'
     version =  '0.0.1'
     manifest {
         attributes(

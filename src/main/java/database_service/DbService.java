@@ -185,7 +185,7 @@ public class DbService {
 
     public synchronized List<Long> getUnSubscriptionUsers(){
         EntityManager em = entityManagerFactory.createEntityManager();
-        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE (s.endDateOfSubscription<=:d OR s.unlimitSubscription<>:b) AND s.deletedInMainChat<>:r")
+        Query query = em.createQuery("SELECT u.userID FROM User u JOIN u.services s  WHERE s.endDateOfSubscription<=:d AND s.unlimitSubscription<>:b AND s.deletedInMainChat<>:r")
                 .setParameter("d",LocalDateTime.now())
                 .setParameter("b",true)
                 .setParameter("r",true);
@@ -249,5 +249,29 @@ public class DbService {
         user.getServices().setDeletedInMainChat(b);
         tr.commit();
         em.close();
+    }
+
+    public synchronized void persistSignal(String textSignal) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        System.out.println("сохраняем сигнал");
+        tr.begin();
+        em.persist(new Signal(textSignal,LocalDateTime.now()));
+        tr.commit();
+        em.close();
+        log.info("Сохранён сигнал");
+    }
+
+    public synchronized List<Signal> getSignals() {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        Query query = em.createQuery("SELECT s FROM Signal s WHERE s.publishdateTime>=:t ORDER BY s.publishdateTime")
+                .setParameter("t",LocalDateTime.now().minusDays(1));
+        tr.begin();
+        List<Signal> signals = query.getResultList();
+        System.out.println("доступных сигналов "+signals.size());
+        tr.commit();
+        em.close();
+        return signals;
     }
 }

@@ -6,6 +6,7 @@ package telegram_services;
 public enum CommandButtons {
     START("/start"),
     //main menu
+    SHOW_SIGNAL("Сигналы"),
     OFORMIT_PODPISCU("Услуги"),
     INFO_BOT("Информация"),
     PARTNER_PROGRAM("Партнёрская программа"),
