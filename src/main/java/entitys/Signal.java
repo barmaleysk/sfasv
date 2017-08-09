@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 public class Signal implements Serializable {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @Column(length = 1024)
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime publishdateTime;
 

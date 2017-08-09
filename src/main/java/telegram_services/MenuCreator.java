@@ -19,7 +19,7 @@ public class  MenuCreator {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
         keyboardRow1.add(new KeyboardButton(CommandButtons.OFORMIT_PODPISCU.getText()));
-       // keyboardRow1.add(new KeyboardButton(CommandButtons.SHOW_SIGNAL.getText()));
+        keyboardRow1.add(new KeyboardButton(CommandButtons.SHOW_SIGNAL.getText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(CommandButtons.INFO_BOT.getText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();

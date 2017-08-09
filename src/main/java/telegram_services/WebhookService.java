@@ -167,8 +167,8 @@ public class WebhookService extends TelegramWebhookBot  {
                     List<Signal> signals = dbService.getSignals();
                     System.out.println(signals);
                     if (signals!=null&&signals.size()>0){
-                        StringBuilder builder = new StringBuilder();
                         for (Signal s : signals){
+                            StringBuilder builder = new StringBuilder();
                             builder.append(s.getDateTime().toLocalDate()).append(" ").append(s.getDateTime().toLocalTime())
                                     .append("\n").append(s.getText())
                                     .append("\n*********");
