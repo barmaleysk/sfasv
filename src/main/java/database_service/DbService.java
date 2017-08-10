@@ -181,6 +181,7 @@ public class DbService {
         user.getPersonalData().setUserNameTelegram(userName);
         tr.commit();
         em.close();
+        log.info("в базе обновлены данные для "+user);
     }
 
     public synchronized List<Long> getUnSubscriptionUsers(){
@@ -191,7 +192,6 @@ public class DbService {
                 .setParameter("r",true);
         List<Long> usersId = query.getResultList();
         em.clear();
-        System.out.println("usersId:" +usersId);
         em.close();
         return usersId;
     }
@@ -269,7 +269,6 @@ public class DbService {
                 .setParameter("t",LocalDateTime.now().minusDays(1));
         tr.begin();
         List<Signal> signals = query.getResultList();
-        System.out.println("доступных сигналов "+signals.size());
         tr.commit();
         em.close();
         return signals;

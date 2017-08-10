@@ -95,21 +95,25 @@ public class WebhookService extends TelegramWebhookBot  {
         String p = "[\\w]*";
         Pattern pattern = Pattern.compile(p,Pattern.UNICODE_CHARACTER_CLASS);
 
-        try {
-            Matcher matcher = pattern.matcher(tempFirstName);
-            if (tempFirstName!=null&&matcher.matches()) {
-                firstName = tempFirstName;
+        if (tempFirstName!=null) {
+            try {
+                Matcher matcher = pattern.matcher(tempFirstName);
+                if (tempFirstName != null && matcher.matches()) {
+                    firstName = tempFirstName;
+                }
+            } catch (Exception e) {
+                log.info(" у пользователя" + message.getChat() + " картинка в имени");
             }
-        }catch (Exception e){
-            log.info(" у пользователя"+message.getChat()+" картинка в имени");
         }
-        try {
-            Matcher matcher = pattern.matcher(tempmLastName);
-            if (tempmLastName!=null&&matcher.matches()) {
-                lastName = tempmLastName;
+        if (tempmLastName!=null) {
+            try {
+                Matcher matcher = pattern.matcher(tempmLastName);
+                if (tempmLastName != null && matcher.matches()) {
+                    lastName = tempmLastName;
+                }
+            } catch (Exception e) {
+                log.info(" у пользователя" + message.getChat() + " картинка в фамилии");
             }
-        }catch (Exception e){
-            log.info(" у пользователя"+message.getChat()+" картинка в фамилии");
         }
         long chatID = message.getChatId();
         User newUser = new User(userID, userName, firstName, lastName, chatID);
@@ -165,7 +169,6 @@ public class WebhookService extends TelegramWebhookBot  {
                 user = dbService.getUserFromDb(incomingMessage.getChatId());
                 if (user.getServices().getEndDateOfSubscription().toLocalDate().isAfter(LocalDate.now())||user.getServices().getUnlimit()){
                     List<Signal> signals = dbService.getSignals();
-                    System.out.println(signals);
                     if (signals!=null&&signals.size()>0){
                         for (Signal s : signals){
                             StringBuilder builder = new StringBuilder();
@@ -287,27 +290,29 @@ public class WebhookService extends TelegramWebhookBot  {
                 String p = "[\\w]*";
                 Pattern pattern = Pattern.compile(p,Pattern.UNICODE_CHARACTER_CLASS);
                 String tempFirstName = incomingMessage.getChat().getFirstName();
-                System.out.println("получил имя "+tempFirstName);
                 String firstName=null;
-                try {
-                    Matcher matcher = pattern.matcher(tempFirstName);
-                    if (tempFirstName!=null&&matcher.matches()) {
-                        System.out.println(tempFirstName);
-                        firstName = tempFirstName;
+                if (tempFirstName!=null){
+                    try {
+                        Matcher matcher = pattern.matcher(tempFirstName);
+                        if (tempFirstName!=null&&matcher.matches()) {
+                            firstName = tempFirstName;
+                            }
+                        }catch (Exception e){
+                            log.info(" у пользователя"+incomingMessage.getChatId()+" картинка в имени");
+                        }
                     }
-                }catch (Exception e){
-                    log.info(" у пользователя"+incomingMessage.getChatId()+" картинка в имени");
-                }
+
                 String tempmLastName = incomingMessage.getChat().getLastName();
                 String lastName=null;
-                try {
-                    Matcher matcher = pattern.matcher(tempmLastName);
-                    if (tempmLastName!=null&&matcher.matches()) {
-                        System.out.println(tempmLastName);
-                        lastName = tempmLastName;
+                if (tempmLastName!=null) {
+                    try {
+                        Matcher matcher = pattern.matcher(tempmLastName);
+                        if (tempmLastName != null && matcher.matches()) {
+                            lastName = tempmLastName;
+                        }
+                    } catch (Exception e) {
+                        log.info(" у пользователя" + incomingMessage.getChatId() + " картинка в фамилии");
                     }
-                }catch (Exception e){
-                    log.info(" у пользователя"+incomingMessage.getChatId()+" картинка в фамилии");
                 }
                 String userName = "@"+incomingMessage.getChat().getUserName();
                 dbService.updatePersonalData(firstName,lastName,userName,incomingMessage.getChatId());
