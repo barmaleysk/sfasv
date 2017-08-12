@@ -161,7 +161,7 @@ public class DbService {
         EntityManager em = entityManagerFactory.createEntityManager();
         List<Tasks> tasks;
         EntityTransaction tr = em.getTransaction();
-        Query query = em.createQuery("SELECT t FROM Tasks t WHERE t.status=:s AND t.type=:v")
+        Query query = em.createQuery("SELECT t FROM Tasks t WHERE t.status<>:s AND t.type=:v")
                 .setParameter("s", status)
                 .setParameter("v",type);
         tr.begin();

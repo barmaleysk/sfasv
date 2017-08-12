@@ -1,5 +1,7 @@
 package telegram_services;
 
+import entitys.TaskStatus;
+import entitys.TaskType;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -187,13 +189,13 @@ public class  MenuCreator {
     }
 
 
-    public synchronized static InlineKeyboardMarkup createCloseTaskButton(long idTask) {
+    public synchronized static InlineKeyboardMarkup createTaskButton(long idTask, CommandButtons commandButtons) {
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
         rowInline1.add(new InlineKeyboardButton()
-                .setText(CommandButtons.CLOSE_TASK.getText())
-                .setCallbackData(CommandButtons.CLOSE_TASK.getText()+idTask));
+                .setText(commandButtons.getText())
+                .setCallbackData(commandButtons.getText()+idTask));
         rowsInline.add(rowInline1);
         markupInline.setKeyboard(rowsInline);
         return markupInline;

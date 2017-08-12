@@ -79,12 +79,16 @@ public class Tasks implements Serializable {
 
     @Override
     public String toString() {
+         String managerNick="-";
+         if (getMeneger()!=null)
+             managerNick=getMeneger().getPersonalData().getUserNameTelegram();
         return "Id заявки: "+this.id
                 +"\nТип: "+this.type
                 +"\nДата создания: "+this.dateTimeOpening
                 +"\nUserId: "+getClient().getUserID()
                 +"\nUserName: "+getClient().getPersonalData().getUserNameTelegram()
-                +"\nVIP: "+getClient().getServices().getUnlimit();
+                +"\nVIP: "+getClient().getServices().getUnlimit()
+                +"\nОбрабатывает: "+managerNick;
 
     }
 }

@@ -61,9 +61,6 @@ public class WebhookService extends TelegramWebhookBot  {
             //System.out.println("пришел CallbackQuery: " + update.getCallbackQuery());
             EditMessageText editMessageText = callBackContext(update.getCallbackQuery());
             return editMessageText;
-        } else if(update.getMessage().getChat().isSuperGroupChat()){
-            System.out.println("сообщение из группового чата id="+update.getMessage().getChatId());
-            return PrivateGroupContext(update.getMessage());
         } else if (update.hasMessage()&update.getMessage().hasText()){
             long userId = update.getMessage().getChat().getId();
             SendMessage sendMessage;
@@ -449,6 +446,7 @@ public class WebhookService extends TelegramWebhookBot  {
                     s= "аудит портфеля(персональный чат)";
                 else
                     throw new TaskTypeException();
+
                 String textToUserMessage = "Выполнена ваша заявка:" +
                         "\nid: "+idTask
                         +"\nТип: "+s;
@@ -479,7 +477,8 @@ public class WebhookService extends TelegramWebhookBot  {
                 log.error("Ошибка в закрытии заявки, не верный тип Task" + task);
                 new_message.setText("Ошибка, не верный тип заявки");
             }
-        }        //данные без параметров
+        }
+        //данные без параметров
         else {
             CommandButtons button = CommandButtons.getTYPE(dataFromQuery);
             BigDecimal cashFromLocalWallet= null;
@@ -656,12 +655,16 @@ public class WebhookService extends TelegramWebhookBot  {
                     .getPersonalData().setAdvcashWallet(wallet);
             replyMessage.setText("Кошелек id="+wallet+" установлен");
           //вывести заявки на чат
-        } else if(textIncomingMessage.equals(CommandButtons.CHECK_PRIVATE_CHAT.getText())){
-            List<Tasks> tasks = dbService.getTasks(TaskStatus.OPEN,TaskType.PRIVATE_CHAT);
+        } else if(textIncomingMessage.equals(CommandButtons.CHECK_PRIVATE_CHAT.getText())&&isAdmin){
+            List<Tasks> tasks = dbService.getTasks(TaskStatus.CLOSE,TaskType.PRIVATE_CHAT);
             if (tasks!=null&&tasks.size()>0){
                 for (Tasks t : tasks){
-                    SendMessage message = new SendMessage(incomingMessage.getChatId(),t.toString());
-                    message.setReplyMarkup(MenuCreator.createCloseTaskButton(t.getId()));
+                    SendMessage message = new SendMessage(incomingMessage.getChatId(),t.toString()+"\n---------");
+                    if (t.getStatus()==TaskStatus.OPEN)
+                            message.setReplyMarkup(MenuCreator.createTaskButton(t.getId(), CommandButtons.HADLE_TASK));
+                    else if (t.getMeneger().getUserID()==incomingMessage.getChatId())
+                            message.setReplyMarkup(MenuCreator.createTaskButton(t.getId(), CommandButtons.CLOSE_TASK));
+
                     try {
                         sendApiMethod(message);
                     } catch (TelegramApiException e) {
@@ -682,7 +685,7 @@ public class WebhookService extends TelegramWebhookBot  {
                             +"\nБонусы: "+t.getClient().getPersonalData().getLocalWallet()
                             +"\nAC кошелёк: "+t.getClient().getPersonalData().getAdvcashWallet();
                     SendMessage message = new SendMessage(incomingMessage.getChatId(),s);
-                    message.setReplyMarkup(MenuCreator.createCloseTaskButton(t.getId()));
+                    message.setReplyMarkup(MenuCreator.createTaskButton(t.getId(),CommandButtons.CLOSE_TASK));
                     try {
                         sendApiMethod(message);
                     } catch (TelegramApiException e) {
@@ -703,7 +706,7 @@ public class WebhookService extends TelegramWebhookBot  {
                             +"\nБонусы: "+t.getClient().getPersonalData().getLocalWallet()
                             +"\nAC кошелёк: "+t.getClient().getPersonalData().getAdvcashWallet();
                     SendMessage message = new SendMessage(incomingMessage.getChatId(),s);
-                    message.setReplyMarkup(MenuCreator.createCloseTaskButton(t.getId()));
+                    message.setReplyMarkup(MenuCreator.createTaskButton(t.getId(),CommandButtons.CLOSE_TASK));
                     try {
                         sendApiMethod(message);
                     } catch (TelegramApiException e) {
@@ -752,23 +755,6 @@ public class WebhookService extends TelegramWebhookBot  {
         return replyMessage;
     }
 
-    private BotApiMethod PrivateGroupContext(Message incomingMessage) {
-        String texOfMessage = incomingMessage.getText();
-        CommandButtons button = CommandButtons.getTYPE(texOfMessage);
-        SendMessage sendMessage = new SendMessage(incomingMessage.getChatId(),"_");
-        switch (button){
-            case END_TASK:
-                KickChatMember kick = new KickChatMember(incomingMessage.getChatId(),301363342);
-                try {
-                    sendApiMethod(kick);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-                sendMessage = new SendMessage(incomingMessage.getChatId(),"заявка закрыта");
-                break;
-        }
-        return sendMessage;
-    }
 
 
 

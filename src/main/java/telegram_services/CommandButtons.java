@@ -50,12 +50,10 @@ public enum CommandButtons {
     CHECK_PRIVATE_CHAT("/заявки на чат"),
     CHECK_TASK_PRIZE("/заявки на премию"),
     SEND_SIGNAL("/сигнал"),
-    //групповой чат
-    END_TASK("/endtask"),
-
+    CLOSE_TASK("Закрыть заявку"),
+    HADLE_TASK("Взять в работу"),
     //user command
-    CHANGE_AC_WALLET("/acwallet "),
-    CLOSE_TASK("Закрыть заявку");
+    CHANGE_AC_WALLET("/acwallet ");
 
     public String getText() {
         return s;
