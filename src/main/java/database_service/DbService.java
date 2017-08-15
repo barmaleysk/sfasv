@@ -2,13 +2,13 @@ package database_service;
 
 import entitys.*;
 import org.apache.log4j.Logger;
-import telegram_services.exceptions.AlreadyClosenTask;
+import telegram_services.CommandButtons;
+import telegram_services.exceptions.AlreadyClosenTaskException;
+import telegram_services.exceptions.AlreadyHadlingTaskException;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -115,7 +115,7 @@ public class DbService {
         return usersList;
     }
 
-    public synchronized void addTask(long userID, Tasks task) {
+    public synchronized void addTask(long userID, Task task) {
         EntityManager em = entityManagerFactory.createEntityManager();
         System.out.println("сохраняем tasks");
         EntityTransaction tr = em.getTransaction();
@@ -157,15 +157,17 @@ public class DbService {
         return usersId;
     }
 
-    public synchronized List<Tasks> getTasks(String status, String type){
+    public synchronized List<Task> getTasks(String status, String type){
         EntityManager em = entityManagerFactory.createEntityManager();
-        List<Tasks> tasks;
+        List<Task> tasks;
         EntityTransaction tr = em.getTransaction();
-        Query query = em.createQuery("SELECT t FROM Tasks t WHERE t.status<>:s AND t.type=:v")
+        Query query = em.createQuery("SELECT t FROM Task t WHERE t.status<>:s AND t.type=:v")
                 .setParameter("s", status)
                 .setParameter("v",type);
         tr.begin();
+        System.out.println("Ищем заявки");
         tasks = query.getResultList();
+        System.out.println("Нашли заявки "+tasks);
         tr.commit();
         em.close();
         return tasks;
@@ -196,22 +198,19 @@ public class DbService {
         return usersId;
     }
 
-    public synchronized Tasks closeTask(Long idTask, Long mangerId) throws NoTaskInDb, NoUserInDb, AlreadyClosenTask {
+    public synchronized Task closeTask(Long idTask, Long mangerId) throws NoTaskInDb, NoUserInDb, AlreadyClosenTaskException {
         EntityManager em = entityManagerFactory.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         tr.begin();
-        Tasks task = em.find(Tasks.class,idTask);
+        Task task = em.find(Task.class,idTask);
         User manager = em.find(User.class,mangerId);
         User client = em.find(User.class,task.getClient().getUserID());
-        em.refresh(task);
-        em.refresh(manager);
-        em.refresh(client);
         if (task==null)
             throw new NoTaskInDb();
         if (manager==null)
             throw new NoUserInDb();
         if (task.getStatus().equals(TaskStatus.CLOSE))
-            throw  new AlreadyClosenTask();
+            throw  new AlreadyClosenTaskException();
 
             //если заявка на выплату то добавляем локальную тразакцию и списываем деньги
             if (task.getType().equals(TaskType.PAY_PRIZE)||task.getType().equals(TaskType.PAY_BONUSES)) {
@@ -272,5 +271,72 @@ public class DbService {
         tr.commit();
         em.close();
         return signals;
+    }
+
+    public Task taskInWork(Long idTask, Long managerId) throws NoTaskInDb, NoUserInDb, AlreadyHadlingTaskException {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        tr.begin();
+        Task task = em.find(Task.class,idTask);
+        System.out.println("вытащаили из базы задачу "+task);
+        if (task==null)
+            throw new NoTaskInDb();
+
+
+        User manager = em.find(User.class,managerId);
+        System.out.println("менеджер "+manager);
+        User client = em.find(User.class,task.getClient().getUserID());
+        System.out.println("клиент "+client);
+
+        if (manager==null||client==null)
+            throw new NoUserInDb();
+
+        if (!task.getStatus().equals(TaskStatus.OPEN))
+            throw new AlreadyHadlingTaskException();
+
+        task.setStatus(TaskStatus.IN_WORK);
+
+        if (manager.getUserID()==client.getUserID()){
+            log.error("Ошибка при взятии в работу заявки, userId юзера и менеджера одинаковы ="+manager.getUserID());
+        } else {
+            task.setMeneger(manager);
+        }
+        tr.commit();
+        em.close();
+        return task;
+    }
+
+    public User setServices(Long clientId, CommandButtons commandButtons) throws NoUserInDb {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        tr.begin();
+        User client = em.find(User.class,clientId);
+        if (client==null)
+            throw new NoUserInDb();
+        switch (commandButtons){
+            case UNLIMIT:
+                client.getServices().setUnlimit(true);
+                break;
+            default:
+                break;
+        }
+        tr.commit();
+        em.close();
+        return client;
+    }
+
+    public void deleteUser(Long chatId) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        Query query1 = em.createNamedQuery("User.delete1");
+        Query query2 = em.createNamedQuery("User.delete2");
+        tr.begin();
+        User user = em.find(User.class,chatId);
+        int rk = user.getRightKey();
+        int lk = user.getLeftKey();
+
+        query1.setParameter("rk",rk);
+        tr.commit();
+        em.close();
     }
 }

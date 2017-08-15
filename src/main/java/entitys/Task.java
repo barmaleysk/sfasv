@@ -3,7 +3,6 @@ package entitys;
 import org.apache.log4j.Logger;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -11,9 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Tasks implements Serializable {
+@Table(name = "tasks")
+public class Task implements Serializable {
     @Transient
-    private static final Logger log = Logger.getLogger(Tasks.class);
+    private static final Logger log = Logger.getLogger(Task.class);
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String type;
@@ -23,10 +23,10 @@ public class Tasks implements Serializable {
     private LocalDateTime dateTimeOpening;
     private LocalDateTime dateTimeEnding;
 
-     Tasks() {
+     Task() {
     }
 
-    public Tasks(String type, User user) {
+    public Task(String type, User user) {
         this.type = type;
         this.status = TaskStatus.OPEN;
         this.users = new ArrayList<>();
@@ -47,11 +47,33 @@ public class Tasks implements Serializable {
     }
 
     public User getClient() {
-        return users==null?null:users.get(0);
+         User client;
+        if (users!=null&&users.size()==2){
+            User user1 = users.get(0);
+            User user2 = users.get(1);
+            if (user1.getTypeUser().equals("customer"))
+                client=user1;
+            else
+                client=user2;
+        }
+        else if (users!=null&&users.size()==1)
+            client=users.get(0);
+        else
+            client=null;
+        return client;
     }
 
     public User getMeneger() {
-        return users==null||users.size()!=2?null:users.get(1);
+         User manager=null;
+         if (users!=null&&users.size()==2){
+             User user1 = users.get(0);
+             User user2 = users.get(1);
+             if (user1.getTypeUser().equals("manager"))
+                 manager=user1;
+             else
+                 manager=user2;
+         }
+        return manager;
     }
 
     public LocalDateTime getDateTimeOpening() {
@@ -66,9 +88,9 @@ public class Tasks implements Serializable {
         this.status = status;
     }
 
-    public void setMeneger(User meneger) {
+    public void setMeneger(User manager) {
         if (this.users!=null&&users.size()==1)
-            users.add(meneger);
+            users.add(manager);
         else
             log.error("Не смог добавить менеджера в task="+this.id);
     }

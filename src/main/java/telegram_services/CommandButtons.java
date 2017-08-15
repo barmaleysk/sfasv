@@ -12,9 +12,9 @@ public enum CommandButtons {
     PARTNER_PROGRAM("Партнёрская программа"),
     SETTINGS("Параметры"),
     //subscripe menu
-    ONE_MONTH("Подписка на 2 дня"),
-    TWO_MONTH("Подписка на 4 дня"),
-    THREE_MONTH("Подписка на 7 дней"),
+    ONE_MONTH("Подписка 1 месяц"),
+    TWO_MONTH("Подписка 2 месяца"),
+    THREE_MONTH("Подписка 3 месяца"),
     CHECK_SUBSCRIPTION("Проверить подписку"),
     BACK_IN_MAIN_MENU("<- Главное меню"),
     PRIVATE_CHAT("Аудит портфеля"),
@@ -38,14 +38,12 @@ public enum CommandButtons {
     REQUEST_PRIZE_BUTTON("выплата бонусов и премии"),
     INVITE_PARTNER("Пригласить"),
     CHECK_REFERALS("Посмотреть рефералов"),
-    SET_REFER("Установить моего рефера"),
     //trial buttom
     SET_TRIAL("Активировать на 2 дня"),
     //FAIL
     FAIL("Я пока не знаю что на это ответить"),
     //admin command
     SET_MENEGERS_MENU("/admin"),
-    CHECK_SUBSRIPTIONS("/подписчики"),
     CHECK_TASKS_PAYMENT("/заявки на выплаты"),
     CHECK_PRIVATE_CHAT("/заявки на чат"),
     CHECK_TASK_PRIZE("/заявки на премию"),
@@ -53,7 +51,8 @@ public enum CommandButtons {
     CLOSE_TASK("Закрыть заявку"),
     HADLE_TASK("Взять в работу"),
     //user command
-    CHANGE_AC_WALLET("/acwallet ");
+    CHANGE_AC_WALLET("/acwallet "),
+    SET_REFER("/пригласитель ");
 
     public String getText() {
         return s;

@@ -25,10 +25,12 @@ import java.util.List;
                 query = "SELECT MAX(u.rightKey) FROM User u"),
         @NamedQuery(name = "User.getAllChildren",
                 query = "SELECT u FROM User u WHERE u.leftKey>:lk AND u.rightKey<:rk AND u.level>:l AND u.level<:l+4"),
-        @NamedQuery(name = "User.getUser",
-                query = "SELECT u FROM User u WHERE u.userID=:k"),
         @NamedQuery(name = "User.getManagers",
                 query = "SELECT u FROM User u WHERE u.typeUser='manager'"),
+       // @NamedQuery(name = "User.delete1",
+       //         query = "UPDATE User u SET u.rightKey = u.rightKey – (:rk - :lk + 1) WHERE u.rightKey > :rk AND u.leftKey < :lk" ),
+       // @NamedQuery(name = "User.delete2",
+       //         query = "UPDATE User u SET u.leftKey = u.leftKey – (:rk - :lk + 1), u.rightKey = u.rightKey – (:rk - :rk + 1) WHERE u.leftKey > :rk")
 })
 public class User implements Serializable{
     @Transient
@@ -42,7 +44,7 @@ public class User implements Serializable{
     private String typeUser = "customer";
 
     @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    private List<Tasks> tasks;
+    private List<Task> tasks;
 
     @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Services services;
@@ -112,11 +114,11 @@ public class User implements Serializable{
         return this.personalData;
     }
 
-    public List<Tasks> getTasks() {
+    public List<Task> getTasks() {
         return this.tasks;
     }
 
-    public void setTask(Tasks task) {
+    public void setTask(Task task) {
         if (this.tasks==null)
             this.tasks=new ArrayList<>();
         this.tasks.add(task);
@@ -147,10 +149,10 @@ public class User implements Serializable{
         return this.advcashTransactions;
     }
 
-    public Tasks getCurrentTasks(String taskType){
-        Tasks task=null;
+    public Task getCurrentTasks(String taskType){
+        Task task=null;
         if (this.tasks!=null){
-            for (Tasks t : this.tasks){
+            for (Task t : this.tasks){
                 if (!t.getStatus().equals(TaskStatus.CLOSE)&&t.getType().equals(taskType))
                     task=t;
             }

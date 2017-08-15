@@ -27,7 +27,7 @@
         <class>entitys.LocalDateTimeConvereter</class>
         <class>entitys.PersonalData</class>
         <class>entitys.Services</class>
-        <class>entitys.Tasks</class>
+        <class>entitys.Task</class>
         <class>entitys.Signal</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>

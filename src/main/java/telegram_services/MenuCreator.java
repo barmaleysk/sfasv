@@ -48,12 +48,12 @@ public class  MenuCreator {
         keyboardRow2.add(new KeyboardButton(CommandButtons.THREE_MONTH.getText()));
         keyboardRow2.add(new KeyboardButton(CommandButtons.PRIVATE_CHAT.getText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
-        //keyboardRow3.add(new KeyboardButton(CommandButtons.UNLIMIT.getText()));
-        keyboardRow3.add(new KeyboardButton(CommandButtons.INVITE_TO_CHAT.getText()));
+        keyboardRow3.add(new KeyboardButton(CommandButtons.UNLIMIT.getText()));
+        //keyboardRow3.add(new KeyboardButton(CommandButtons.INVITE_TO_CHAT.getText()));
         keyboardRow3.add(new KeyboardButton(CommandButtons.CHECK_SUBSCRIPTION.getText()));
         KeyboardRow keyboardRow4 = new KeyboardRow();
         keyboardRow4.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
-        //keyboardRow4.add(new KeyboardButton(CommandButtons.INVITE_TO_CHAT.getText()));
+        keyboardRow4.add(new KeyboardButton(CommandButtons.INVITE_TO_CHAT.getText()));
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
@@ -96,7 +96,7 @@ public class  MenuCreator {
         KeyboardRow keyboardRow4 = new KeyboardRow();
         keyboardRow4.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
         keyboardRows.add(keyboardRow1);
-        keyboardRows.add(keyboardRow2);
+        //keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
         keyboardRows.add(keyboardRow4);
         keyboardMarkup.setKeyboard(keyboardRows);
