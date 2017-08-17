@@ -13,7 +13,7 @@ import java.util.List;
  * Created by kuteynikov on 29.06.2017.
  */
 @Entity
-@Table(name = "users")
+@Table(name = "botusers")
 @NamedQueries({
         @NamedQuery(name = "User.calculateKeyStep1",
                 query = "UPDATE User u SET u.leftKey=u.leftKey+2, u.rightKey=u.rightKey+2 WHERE u.leftKey>:key"),
@@ -37,7 +37,6 @@ public class User implements Serializable{
     private static final Logger log = Logger.getLogger(User.class);
     @Id
     private  long userID;
-    private long chatID;
     private int level;
     private int rightKey;
     private int leftKey;
@@ -58,20 +57,15 @@ public class User implements Serializable{
 
     User() {}
 
-    public User(long userID, String userName, String firstName, String lastName, long chatID) {
+    public User(long userID, String userName, String firstName, String lastName) {
         this.userID=userID;
         getPersonalData().setUserNameTelegram(userName);
         getPersonalData().setFirstName(firstName);
         getPersonalData().setLastName(lastName);
-        this.chatID=chatID;
     }
 
     public long getUserID() {
         return userID;
-    }
-
-    public long getChatID() {
-        return chatID;
     }
 
     public int getLevel() {

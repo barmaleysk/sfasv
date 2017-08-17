@@ -113,7 +113,7 @@ public class WebhookService extends TelegramWebhookBot  {
             }
         }
         long chatID = message.getChatId();
-        User newUser = new User(userID, userName, firstName, lastName, chatID);
+        User newUser = new User(userID, userName, firstName, lastName);
         newUser.setEndDateOfSubscription(LocalDateTime.now());//.plusDays(1)); //включаем тестовый период
         log.info("New User created: "+newUser);
         //готовим сообщение для ответа
@@ -255,9 +255,9 @@ public class WebhookService extends TelegramWebhookBot  {
                 }
                 break;
             case UNLIMIT:
-                //message.setText(BotMessages.UNLIMIT_SUBSCRIPTION.getText());
-                //message.setReplyMarkup(MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=unlimit"));
-                message.setText("Для приобретения VIP подписки обратитесь, пожалуйста к @ich333 или к @ShakhLeo");
+                message.setText(BotMessages.UNLIMIT_SUBSCRIPTION.getText());
+                message.setReplyMarkup(MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=unlimit"));
+                //message.setText("Для приобретения VIP подписки обратитесь, пожалуйста к @ich333 или к @ShakhLeo");
                 break;
             case INVITE_TO_CHAT:
                 user = dbService.getUserFromDb(incomingMessage.getChatId());
@@ -330,7 +330,7 @@ public class WebhookService extends TelegramWebhookBot  {
                 break;
             case INVITE_PARTNER:
                 message.setText("Чтобы пригласить участника, скопируйте и отправьте ему эту ссылку "
-                        + "\n https://t.me/TheNewWaveBot?start=" + incomingMessage.getChat().getId()
+                        + "\n https://t.me/NewWave_bot?start=" + incomingMessage.getChat().getId()
                         + "\n");
                 break;
             case CHECK_REFERALS:
@@ -450,7 +450,7 @@ public class WebhookService extends TelegramWebhookBot  {
                 String textToUserMessage = "Выполнена ваша заявка:" +
                         "\nid: "+idTask
                         +"\nТип: "+s;
-                SendMessage messageToUser = new SendMessage(task.getClient().getChatID(),textToUserMessage);
+                SendMessage messageToUser = new SendMessage(task.getClient().getUserID(),textToUserMessage);
                 //отправляем уведомление пользователю
                 sendApiMethod(messageToUser);
                 //возвращаем ответ админу
@@ -604,7 +604,7 @@ public class WebhookService extends TelegramWebhookBot  {
                         List<User> managers = dbService.getManagers();
                         for (User manager : managers) {
                             SendMessage sendMessage = new SendMessage()
-                                    .setChatId(manager.getChatID())
+                                    .setChatId(manager.getUserID())
                                     .setText("Новая заявка на аудит портфеля:"
                                             + "\nuserName: " + user.getUserName()
                                             + "\nuserId: " + user.getUserID()
@@ -679,9 +679,13 @@ public class WebhookService extends TelegramWebhookBot  {
         }//сменить кошелек
         else if(textIncomingMessage.startsWith(CommandButtons.CHANGE_AC_WALLET.getText())) {
             String wallet = textIncomingMessage.substring(10);
-            dbService.getUserFromDb(incomingMessage.getChat().getId())
-                    .getPersonalData().setAdvcashWallet(wallet);
-            replyMessage.setText("Кошелек id="+wallet+" установлен");
+            try {
+                dbService.setAcWallet(incomingMessage.getChatId(), wallet);
+                replyMessage.setText("Кошелек id=" + wallet + " установлен");
+            } catch (NoUserInDb noUserInDb) {
+                log.error("Ошибка при смене кошелька, юзера нет в базе "+incomingMessage.getChatId());
+                replyMessage.setText("Ошибка, обратитесь в тех. поддержку");
+            }
         }
         else if (textIncomingMessage.startsWith(CommandButtons.SET_REFER.getText())){
             Long referId= null;

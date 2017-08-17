@@ -339,4 +339,16 @@ public class DbService {
         tr.commit();
         em.close();
     }
+
+    public void setAcWallet(Long chatId, String wallet) throws NoUserInDb {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        tr.begin();
+        User user = em.find(User.class,chatId);
+        if (user==null)
+            throw new NoUserInDb();
+        user.getPersonalData().setAdvcashWallet(wallet);
+        tr.commit();
+        em.close();
+    }
 }
