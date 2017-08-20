@@ -265,7 +265,7 @@ public class DbService {
         EntityManager em = entityManagerFactory.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         Query query = em.createQuery("SELECT s FROM Signal s WHERE s.publishdateTime>=:t ORDER BY s.publishdateTime")
-                .setParameter("t",LocalDateTime.now().minusDays(1));
+                .setParameter("t",LocalDateTime.now().minusDays(7));
         tr.begin();
         List<Signal> signals = query.getResultList();
         tr.commit();

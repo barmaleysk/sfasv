@@ -311,7 +311,7 @@ public class WebhookService extends TelegramWebhookBot  {
                         log.info(" у пользователя" + incomingMessage.getChatId() + " картинка в фамилии");
                     }
                 }
-                String userName = "@"+incomingMessage.getChat().getUserName();
+                String userName = "@"+incomingMessage.getChat().getUserName().toString();
                 dbService.updatePersonalData(firstName,lastName,userName,incomingMessage.getChatId());
                 user = dbService.getUserFromDb(incomingMessage.getChatId());
                 String s = "Ваш username: " + user.getPersonalData().getUserNameTelegram()
