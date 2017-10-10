@@ -31,8 +31,8 @@
         <class>entitys.Signal</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bot01?useSSL=false&amp;useUnicode=true&amp;serverTimezone=UTC"/>
-            <property name="javax.persistence.jdbc.user" value="bot"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/testbot?useSSL=false&amp;useUnicode=true&amp;serverTimezone=UTC"/>
+            <property name="javax.persistence.jdbc.user" value="test"/>
             <property name="javax.persistence.jdbc.password" value="MegaP0kem0n"/>
             <property name="javax.persistence.schema-generation.database.action" value="create"/>
             <property name="eclipselink.query-results-cache" value="false"/>

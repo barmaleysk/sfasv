@@ -96,7 +96,7 @@ public class  MenuCreator {
         KeyboardRow keyboardRow4 = new KeyboardRow();
         keyboardRow4.add(new KeyboardButton(CommandButtons.BACK_IN_MAIN_MENU.getText()));
         keyboardRows.add(keyboardRow1);
-        //keyboardRows.add(keyboardRow2);
+        keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
         keyboardRows.add(keyboardRow4);
         keyboardMarkup.setKeyboard(keyboardRows);

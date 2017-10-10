@@ -36,10 +36,10 @@ public class Main {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(GlobalConfigs.pathToCertificateStore,GlobalConfigs.certificateStorePassword,GlobalConfigs.EXTERNALWEBHOOKURL,GlobalConfigs.INTERNALWEBHOOKURL,GlobalConfigs.pathToCertificatePublicKey);
             telegramBotsApi.registerBot(webhookService);
-            telegramBotsApi.registerBot(groupChatBot);
+            //telegramBotsApi.registerBot(groupChatBot);
             System.out.println("TelegramService запущен");
-            kickTimer.start();
-            System.out.println("KickTimer запущен");
+         //   kickTimer.start();
+           // System.out.println("KickTimer запущен");
             log.info("*********Bot started********");
         } catch (TelegramApiRequestException e) {
             System.out.println("Не смог создать telegramBotsApi");

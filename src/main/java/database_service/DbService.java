@@ -55,6 +55,7 @@ public class DbService {
         User userFromDb = em.find(User.class,userId);
         em.refresh(userFromDb);
         transaction.commit();
+        em.clear();
         em.close();
         return userFromDb;
     }
@@ -349,6 +350,21 @@ public class DbService {
             throw new NoUserInDb();
         user.getPersonalData().setAdvcashWallet(wallet);
         tr.commit();
+        em.close();
+    }
+
+    public void updateUser(User user) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        tr.begin();
+        try {
+            em.merge(user);
+            tr.commit();
+        }catch (Exception e){
+            tr.rollback();
+            log.error("Ошибка при обновлении юзера "+user);
+        }
+        em.clear();
         em.close();
     }
 }

@@ -21,7 +21,11 @@ import telegram_services.exceptions.AlreadyClosenTaskException;
 import telegram_services.exceptions.AlreadyHadlingTaskException;
 import telegram_services.exceptions.TaskTypeException;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -64,12 +68,13 @@ public class WebhookService extends TelegramWebhookBot  {
         } else if (update.hasMessage()&update.getMessage().hasText()){
             long userId = update.getMessage().getChat().getId();
             SendMessage sendMessage;
-            if (!dbService.dbHasUser(userId)){
+            User user = dbService.getUserFromDb(userId);
+            if (user==null){
                 sendMessage = startContext(update.getMessage());
             }else if (update.getMessage().getText().startsWith("/")&&!update.getMessage().getText().equals("/start")){
                 sendMessage = сommandContext(update.getMessage());
             } else {
-                sendMessage = mainContext(update.getMessage());
+                sendMessage = mainContext(update.getMessage(),user);
             }
             return sendMessage;
         } else {
@@ -150,20 +155,18 @@ public class WebhookService extends TelegramWebhookBot  {
         return replyMessage;
     }
 
-    public SendMessage mainContext(Message incomingMessage) {
+    public SendMessage mainContext(Message incomingMessage, User user) {
         String texOfMessage = incomingMessage.getText();
         SendMessage message = new SendMessage()
                 .setChatId(incomingMessage.getChatId())
                 .setText(BotMessages.DEFAULT.getText());
         CommandButtons button = CommandButtons.getTYPE(texOfMessage);
-        User user = null;
         switch (button) {
             case START:
                 message.setText(BotMessages.MAIN_MENU.getText());
                 message.setReplyMarkup(mainMenuMarkup);
                 break;
             case SHOW_SIGNAL:
-                user = dbService.getUserFromDb(incomingMessage.getChatId());
                 if (user.getServices().getEndDateOfSubscription().toLocalDate().isAfter(LocalDate.now())||user.getServices().getUnlimit()){
                     List<Signal> signals = dbService.getSignals();
                     if (signals!=null&&signals.size()>0){
@@ -223,7 +226,6 @@ public class WebhookService extends TelegramWebhookBot  {
                         MenuCreator.createPayButton("userId="+incomingMessage.getChat().getId()+"&typeOfParchase=threeMonth"));
                 break;
             case CHECK_SUBSCRIPTION:
-                user = dbService.getUserFromDb(incomingMessage.getChat().getId());
                 LocalDate endDate = user.getServices().getEndDateOfSubscription().toLocalDate();
                 if (user.getServices().getUnlimit()) {
                     message.setText("У вас безлимитная подписка!");
@@ -241,11 +243,10 @@ public class WebhookService extends TelegramWebhookBot  {
                // }
                 break;
             case PRIVATE_CHAT:
-                User userPC = dbService.getUserFromDb(incomingMessage.getChatId());
-                if (userPC.getPersonalData().getUserNameTelegram().equals("@null")){
+                if (user.getPersonalData().getUserNameTelegram().equals("@null")){
                     message.setText("Чтобы воспользоваться услугой, заполните username в настройках телеграм, и нажмите \"Мои данные\" в меню \"Параметры\"").enableMarkdown(false);
-                } else if (userPC.getServices().getOnetimeConsultation()
-                        ||userPC.getServices().getUnlimit()){
+                } else if (user.getServices().getOnetimeConsultation()
+                        ||user.getServices().getUnlimit()){
                     message.setText("Оставьте заявку и вас пригласят в чат");
                     message.setReplyMarkup(MenuCreator.createInlineButton(CommandButtons.TASK_PRIVATE_CHAT));
                 } else {
@@ -260,7 +261,6 @@ public class WebhookService extends TelegramWebhookBot  {
                 //message.setText("Для приобретения VIP подписки обратитесь, пожалуйста к @ich333 или к @ShakhLeo");
                 break;
             case INVITE_TO_CHAT:
-                user = dbService.getUserFromDb(incomingMessage.getChatId());
                 if (user!=null&&user.getServices().getEndDateOfSubscription().toLocalDate().isAfter(LocalDate.now())||user.getServices().getUnlimit()) {
                     if (user.getServices().getDeletedInMainChat()==null||user.getServices().getDeletedInMainChat()) {
                         groupChatBot.unkick(incomingMessage.getChatId());
@@ -275,10 +275,16 @@ public class WebhookService extends TelegramWebhookBot  {
                 message.setReplyMarkup(settingsMenuMarkup);
                 break;
             case SITE_ACCOUNT:
-                message.setText("сайт в разработке, скоро здесь можно будет получить данные для входа");
+                if (user.getLogin().equals("@null")||user.getLogin()==null){
+                    message.setText("Для авторизации на сайте необходимо заполнить логин Telegram");
+                } else if (user.getPassword()==null){
+                    message.setText("Ваш логин "+user.getLogin()+"\nДля входа на сайт установите пароль. Для этого введите /pwd вашпароль");
+                }else if (user.getPassword()!=null&&!user.getLogin().equals("@null")&&user.getLogin()!=null){
+                    message.setText("Адрес нашего сайта new-wave.io \nВаш логин "+user.getLogin()+"\nДля смены пароля команда /pwd вашпароль ");
+                }
                 break;
             case REQUISITES:
-                String wallet = dbService.getUserFromDb(incomingMessage.getChat().getId()).getAdvcashWallet();
+                String wallet = user.getPersonalData().getAdvcashWallet();
                 message.setText("id вашего кошелька Advcash="+wallet
                             +"\nЧтобы сменить, отправьте:"
                             +"\n/acwallet id_кошелька").enableMarkdown(false);
@@ -313,7 +319,6 @@ public class WebhookService extends TelegramWebhookBot  {
                 }
                 String userName = "@"+incomingMessage.getChat().getUserName().toString();
                 dbService.updatePersonalData(firstName,lastName,userName,incomingMessage.getChatId());
-                user = dbService.getUserFromDb(incomingMessage.getChatId());
                 String s = "Ваш username: " + user.getPersonalData().getUserNameTelegram()
                         +"\nВаше имя: " + user.getPersonalData().getFirstName()
                         +"\nВаша фамилия: "+user.getPersonalData().getLastName()
@@ -334,7 +339,6 @@ public class WebhookService extends TelegramWebhookBot  {
                         + "\n");
                 break;
             case CHECK_REFERALS:
-                user = dbService.getUserFromDb(incomingMessage.getChat().getId());
                 int parentLevel = user.getLevel();
                 int parentLeftKey = user.getLeftKey();
                 int parentRightKey = user.getRightKey();
@@ -391,7 +395,6 @@ public class WebhookService extends TelegramWebhookBot  {
                 message.setText(text).enableMarkdown(false);
                 break;
             case LOCAL_WALLET:
-                 user = dbService.getUserFromDb(incomingMessage.getChatId());
                  //проверяем набрал ли рефовод следующие 10 платежей от первой линии
                 if (user.getPersonalData().getPrize()>0){
                     BigDecimal cash = user.getLocalWallet();
@@ -687,6 +690,25 @@ public class WebhookService extends TelegramWebhookBot  {
                 replyMessage.setText("Ошибка, обратитесь в тех. поддержку");
             }
         }
+        //сменить пароль
+        else if (textIncomingMessage.startsWith("/pwd")){
+            log.info("Попытка сменить пароль userId: "+incomingMessage.getChatId());
+            if (textIncomingMessage.length()>5&&isValidString(8,textIncomingMessage.substring(5))){
+                String password = textIncomingMessage.substring(5);
+                User user = dbService.getUserFromDb(incomingMessage.getChatId());
+                try {
+                    user.getPersonalData().setPassword(getMd5Password(password));
+                    dbService.updateUser(user);
+                    log.info("юзер "+user+"сменил пароль");
+                    replyMessage.setText("Пароль установлен!");
+                }catch (UncorrectPasswordException e){
+                    log.error("Ошибка при смене пароля у пользователя "+user);
+                    replyMessage.setText("Ошибка, обратитесь в тех поддержку");
+                }
+            }else {
+                replyMessage.setText("Некорректный пароль!");
+            }
+        }
         else if (textIncomingMessage.startsWith(CommandButtons.SET_REFER.getText())){
             Long referId= null;
             try {
@@ -787,6 +809,44 @@ public class WebhookService extends TelegramWebhookBot  {
             }
         }
         return replyMessage;
+    }
+
+    private String getMd5Password(String password) throws UncorrectPasswordException {
+        String hashPassword=null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] byteOfPassword = password.getBytes("UTF-8");
+            byte[] digest = md.digest(byteOfPassword);
+            BigInteger bigInteger = new BigInteger(1,digest);
+            hashPassword = bigInteger.toString(16);
+            while (hashPassword.length()<32){
+                hashPassword = "0"+hashPassword;
+            }
+        } catch (NoSuchAlgorithmException e) {
+            log.error("несуществующий алгоритм хеширования");
+        } catch (UnsupportedEncodingException e) {
+            log.error("несуществующая кодировка");
+        }
+        if (hashPassword==null)
+            throw  new UncorrectPasswordException();
+        return hashPassword;
+    }
+
+    private boolean isValidString(int minLength, String string) {
+        Boolean check = false;
+        if (string!=null&&!string.isEmpty()&&string.length()>=minLength){
+            //String p = "[\\w]*";
+            //Pattern pattern = Pattern.compile(p,Pattern.UNICODE_CHARACTER_CLASS);
+           // try {
+              //  Matcher matcher = pattern.matcher(string);
+               // if (matcher.matches()) {
+                    check=true;
+               // }
+           // }catch (Exception e){
+            //    log.warn("В string какаято фигня"+string);
+           // }
+        }
+        return check;
     }
 
 

@@ -41,6 +41,8 @@ public class User implements Serializable{
     private int rightKey;
     private int leftKey;
     private String typeUser = "customer";
+    private String login;
+    private String password;
 
     @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private List<Task> tasks;
@@ -156,6 +158,22 @@ public class User implements Serializable{
 
     public List<LocalTransaction> getLocalTransactions() {
         return this.localTransactions;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

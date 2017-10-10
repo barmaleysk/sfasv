@@ -24,6 +24,8 @@ public class PersonalData implements Serializable {
     @Column(scale = 2,precision = 10)
     private BigDecimal localWallet;
     private int prize=0;
+    @Column(name = "password")
+    private String password;
 
     public PersonalData() {
     }
@@ -84,5 +86,13 @@ public class PersonalData implements Serializable {
 
     public void setPrize(int prize) {
         this.prize = prize;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
