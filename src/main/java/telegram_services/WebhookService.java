@@ -275,12 +275,12 @@ public class WebhookService extends TelegramWebhookBot  {
                 message.setReplyMarkup(settingsMenuMarkup);
                 break;
             case SITE_ACCOUNT:
-                if (user.getLogin().equals("@null")||user.getLogin()==null){
+                if (user.getPersonalData().getUserNameTelegram().equals("@null")||user.getPersonalData().getUserNameTelegram()==null){
                     message.setText("Для авторизации на сайте необходимо заполнить логин Telegram");
-                } else if (user.getPassword()==null){
-                    message.setText("Ваш логин "+user.getLogin()+"\nДля входа на сайт установите пароль. Для этого введите /pwd вашпароль");
-                }else if (user.getPassword()!=null&&!user.getLogin().equals("@null")&&user.getLogin()!=null){
-                    message.setText("Адрес нашего сайта new-wave.io \nВаш логин "+user.getLogin()+"\nДля смены пароля команда /pwd вашпароль ");
+                } else if (user.getPersonalData().getPassword()==null){
+                    message.setText("Ваш логин "+user.getPersonalData().getUserNameTelegram()+"\nДля входа на сайт установите пароль. Для этого введите \n/pwd вашпароль \nПароль должен содержать не менее 8 символов");
+                }else if (user.getPersonalData().getPassword()!=null&&!user.getPersonalData().getUserNameTelegram().equals("@null")&&user.getPersonalData().getUserNameTelegram()!=null){
+                    message.setText("Адрес нашего сайта new-wave.io \nВаш логин "+user.getPersonalData().getUserNameTelegram()+"\nДля смены пароля команда \n/pwd вашпароль \nпароль должен содержать не меньше 8 символов  ");
                 }
                 break;
             case REQUISITES:
@@ -693,7 +693,7 @@ public class WebhookService extends TelegramWebhookBot  {
         //сменить пароль
         else if (textIncomingMessage.startsWith("/pwd")){
             log.info("Попытка сменить пароль userId: "+incomingMessage.getChatId());
-            if (textIncomingMessage.length()>5&&isValidString(8,textIncomingMessage.substring(5))){
+            if (textIncomingMessage.length()>5&& isValidPassword(textIncomingMessage.substring(5))){
                 String password = textIncomingMessage.substring(5);
                 User user = dbService.getUserFromDb(incomingMessage.getChatId());
                 try {
@@ -832,9 +832,9 @@ public class WebhookService extends TelegramWebhookBot  {
         return hashPassword;
     }
 
-    private boolean isValidString(int minLength, String string) {
+    private boolean isValidPassword(String string) {
         Boolean check = false;
-        if (string!=null&&!string.isEmpty()&&string.length()>=minLength){
+        if (string!=null&&!string.isEmpty()&&string.length()>=8){
             //String p = "[\\w]*";
             //Pattern pattern = Pattern.compile(p,Pattern.UNICODE_CHARACTER_CLASS);
            // try {
