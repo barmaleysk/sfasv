@@ -68,7 +68,9 @@ public class WebhookService extends TelegramWebhookBot  {
         } else if (update.hasMessage()&update.getMessage().hasText()){
             long userId = update.getMessage().getChat().getId();
             SendMessage sendMessage;
+            System.out.println("Ищем юзера в базе chatid="+update.getMessage().getChatId());
             User user = dbService.getUserFromDb(userId);
+            System.out.println(user);
             if (user==null){
                 sendMessage = startContext(update.getMessage());
             }else if (update.getMessage().getText().startsWith("/")&&!update.getMessage().getText().equals("/start")){
@@ -85,6 +87,7 @@ public class WebhookService extends TelegramWebhookBot  {
 
 
     public SendMessage startContext(Message message) {
+        System.out.println("контекст user не в базе");
         //вытаскиваем данные из сообщения и создаем пользователя
         long userID = message.getChat().getId();
         String userName = "@"+message.getChat().getUserName();

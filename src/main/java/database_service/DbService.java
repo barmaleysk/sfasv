@@ -50,11 +50,7 @@ public class DbService {
 
     public synchronized User getUserFromDb(long userId){
         EntityManager em = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        transaction.begin();
         User userFromDb = em.find(User.class,userId);
-        em.refresh(userFromDb);
-        transaction.commit();
         em.clear();
         em.close();
         return userFromDb;
